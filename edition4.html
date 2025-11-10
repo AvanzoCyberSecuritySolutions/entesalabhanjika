@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edition 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Include Swiper CSS & JS -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="jquery.js"></script>
+  <script src="turn.js"></script>
+  <style>
+    body {
+      background-color: #FFF0D7;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+    }
+
+  section::-webkit-scrollbar {
+    display: none;
+  }
+  section {
+    scrollbar-width: none;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+    box-sizing: border-box;
+	font-family: "Poppins", sans-serif;
+}
+
+.flipbook {
+  width: 1200px;
+  height: 900px;
+  margin: 8rem auto; /* center with spacing */
+}
+
+.flipbook img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* For medium screens (tablets) */
+@media (max-width: 1300px) {
+  .flipbook {
+    width: 1050px;
+  height: 800px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+
+@media (max-width: 1100px) {
+  .flipbook {
+    width: 1000px;
+  height: 700px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+
+@media (max-width: 950px) {
+  .flipbook {
+    width: 900px;
+  height: 600px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+
+@media (max-width: 900px) {
+  .flipbook {
+    width: 700px;
+  height: 500px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+
+@media (max-width: 700px) {
+  .flipbook {
+    width: 500px;
+  height: 350px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+@media (max-width: 500px) {
+  .flipbook {
+    width: 400px;
+  height: 300px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+@media (max-width: 350px) {
+  .flipbook {
+    width: 300px;
+  height: 200px;
+  }
+
+  .flipbook img{
+    width: 100%;
+  height: 100%;
+  object-fit: cover;
+  }
+}
+
+
+.flipbook .hard {
+   background: #fff !important;
+    color: #000;
+    font-weight: bold;
+    border: none; 
+}
+
+.flipbook .hard small{
+	font-style: italic;
+	font-weight: lighter;
+	opacity: 0.7;
+	font-size: 14px;
+}
+
+.flipbook .page {
+    background: white;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.11);
+}
+
+.page img{
+	object-fit: cover;
+	margin: auto;
+}
+
+.flipbook .page small{
+	font-size: 14px;
+    margin-bottom: 10px;
+}
+
+</style>
+</head>
+
+<body class="relative font-sans text-gray-800 overflow-x-hidden overflow-y-auto">
+<section class="relative min-h-screen overflow-x-hidden">
+
+  <!-- Background decorative images -->
+  <img src="images/img1.png" alt="Decor 1"
+     class="absolute z-0 pointer-events-none"
+     style="left: 100px; top: 0px; width: 300px; opacity: 0.2;">
+
+  <img src="images/img2.png" alt="Decor 2"
+     class="absolute z-0 pointer-events-none "
+     style="left: -200px; bottom: 30px; width: 450px; opacity: 0.2;">
+
+     <img src="images/img2.png" alt="Decor 2"
+     class="absolute z-0 pointer-events-none "
+     style="right: -200px; top: 0px; width: 450px; opacity: 0.2;">
+
+<img src="images/img1.png" alt="Decor 1"
+     class="absolute z-0 -scale-x-100 pointer-events-none"
+     style="right: 0px; bottom: -100px; width: 250px; opacity: 0.2;">
+
+
+
+  <!-- Fixed navbar -->
+<nav class="top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50">
+  <div class="text-xl font-bold" style="color: #7B3D00;">Logo</div>
+  <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
+    <li><a href="index.html" class="relative">Home<span class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
+    <li><a href="#editor">Editor</a></li>
+    <li><a href="#writer">Writer</a></li>
+    <li><a href="#feedback">Feedback</a></li>
+  </ul>
+  <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
+</nav>
+
+    <!-- Book Background Div -->
+
+  <div class="relative z-20 mt-[0px] flex justify-center items-center">
+  <div class="flipbook object-cover">
+    <div class="hard">
+      <img src="images/Pages/44.png" alt="" class="w-full h-full">
+    </div>
+    <div class="hard">
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+    <div>
+      <img src="images/Pages/3.png" alt="" class="w-full h-full"/>
+    </div>
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/4.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/5.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/6.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/7.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/8.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/9.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/10.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/11.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/12.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div>
+      <img src="images/Pages/13.png" alt="" class="w-full h-full" />
+    </div>
+
+    <div>
+      <img src="images/Pages/2.png" alt="" class="w-full h-full">
+    </div>
+
+    <div class="hard">
+      <img src="images/Pages/14.png" alt="" class="w-full h-full">
+    </div>
+    
+    <div class="hard">Thank You</div>
+  </div>
+
+  
+</div>
+
+</div>
+
+ <script>
+  $(document).ready(function () {
+    $(".flipbook").turn();
+
+    function getSizeCategory(width) {
+      if (width >= 1300) return "xl";
+      if (width >= 1100) return "lg";
+      if (width >= 950) return "md";
+      if (width >= 900) return "mmd";
+      if (width >= 700) return "sm";
+      if (width >= 500) return "xm";
+      if (width >= 350) return "xxm";
+      return "xs";
+    }
+
+    let currentCategory = getSizeCategory(window.innerWidth);
+
+    $(window).on("resize", function () {
+      const newCategory = getSizeCategory(window.innerWidth);
+      if (newCategory !== currentCategory) {
+        location.reload(); // refresh when entering new breakpoint
+      }
+    });
+  });
+</script>
+
+
+
+
+</body>
+
+</html>

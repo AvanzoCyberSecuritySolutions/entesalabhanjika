@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avanzo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Include Swiper CSS & JS -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  <style>
+    body {
+      background-color: #FFF0D7;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+    }
+
+  section::-webkit-scrollbar {
+    display: none;
+  }
+  section {
+    scrollbar-width: none;
+  }
+
+  /* Default for small devices */
+  .vector-slide {
+    width: 150px;
+    height: 150px;
+  }
+
+  /* Small devices */
+  @media (min-width: 500px) {
+    .vector-slide {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+  /* Small devices */
+  @media (min-width: 700px) {
+    .vector-slide {
+      width: 200px;
+      height: 200px;
+    }
+  }
+
+   /* Medium devices */
+  @media (min-width: 800px) {
+    .vector-slide {
+      width: 250px;
+      height: 250px; /* your requested 300px */
+    }
+  }
+
+  /* Medium devices */
+  @media (min-width: 900px) {
+    .vector-slide {
+      width: 300px;
+      height: 300px; /* your requested 300px */
+    }
+  }
+
+  /* Medium devices */
+  @media (min-width: 1100px) {
+    .vector-slide {
+      width: 400px;
+      height: 400px; /* your requested 300px */
+    }
+  }
+
+  /* Large devices */
+  @media (min-width: 1440px) {
+    .vector-slide {
+      width: 500px;
+      height: 500px;
+    }
+  }
+  </style>
+</head>
+
+<body class="relative font-sans text-gray-800 overflow-x-hidden overflow-y-auto">
+<section class="relative min-h-screen overflow-x-hidden">
+
+  <!-- Background decorative images -->
+  <img src="images/img1.png" alt="Decor 1" class="absolute top-0 left-0 w-[450px] opacity-20 z-0 pointer-events-none">
+  <img src="images/img3.png" alt="Decor 2"
+     class="absolute top-50 left-390 w-[1200px] opacity-25 z-0 pointer-events-none hidden md:block">
+
+<img src="images/img1.png" alt="Decor 3"
+     class="absolute top-24 right-0 w-[350px] opacity-20 -scale-x-100 z-0 pointer-events-none hidden md:block">
+
+
+
+  <!-- Fixed navbar -->
+<nav class="fixed top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50">
+  <div class="text-xl font-bold" style="color: #7B3D00;">Logo</div>
+  <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
+    <li><a href="#home" class="relative">Home<span class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
+    <li><a href="#editor">Editor</a></li>
+    <li><a href="#writer">Writer</a></li>
+    <li><a href="#feedback">Feedback</a></li>
+  </ul>
+  <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
+</nav>
+
+<!-- Search Bar -->
+<div class="mt-[180px] md:mt-[220px] flex justify-center px-4 z-40">
+  <div class="flex items-center w-full max-w-[800px] bg-[#DBC5A1] rounded-full px-6 py-4 shadow-lg">
+    <img src="images/search.png" alt="Search" class="w-6 h-6 mr-3">
+    <input type="text" placeholder="Search"
+      class="flex-grow bg-[#DBC5A1] outline-none text-[#7B3D00] text-base md:text-lg px-3 placeholder-[#727272]">
+    <img src="images/mi_filter.png" alt="Filter" class="w-6 h-6 ml-3 cursor-pointer">
+  </div>
+</div>
+
+
+
+<section class="relative mt-20 z-50 pb-32">
+  <div class="swiper mySwiper !overflow-visible">
+    <div class="swiper-wrapper">
+
+      <!-- Slide 1 -->
+      <!-- Example slide -->
+<div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition1.html">
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+
+  <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+  </div>
+  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+    EDITION 1
+  </h1>
+</div>
+
+
+      <!-- Slide 2 -->
+      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition2.html">
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+
+  <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+  </div>
+  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+    EDITION 2
+  </h1>
+</div>
+
+      <!-- Slide 3 -->
+      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition3.html">
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+
+  <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+  </div>
+  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+    EDITION 3
+  </h1>
+</div>
+
+      <!-- Slide 4 -->
+<div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition4.html">
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+
+  <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+  </div>
+  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+    EDITION 4
+  </h1>
+</div>
+
+      <!-- Slide 5 -->
+      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition5.html">
+<img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+
+  <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+       style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+  </div>
+  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+    EDITION 5
+  </h1>
+</div>
+
+
+
+    </div>
+
+    <!-- Pagination Dots -->
+    <div class="swiper-pagination !bottom-[-30px]"></div>
+  </div>
+</section>
+
+
+
+</section>
+
+<script>
+const swiper = new Swiper(".mySwiper", {
+  slidesPerView: 1.8,
+  centeredSlides: true,
+  spaceBetween: 0,
+  grabCursor: true,
+  loop: false,
+  initialSlide: 2,
+  pagination: {
+    el: ".swiper-pagination",
+    clickable: true,
+  },
+  breakpoints: {
+    640: { slidesPerView: 2.3 },
+    768: { slidesPerView: 2.2 },
+    1024: { slidesPerView: 2.1 },
+    1280: { slidesPerView: 2.0 }
+  },
+  on: {
+    init: function () { 
+      updateSlideStyles(this);
+      setupClickRedirect(this);
+    },
+    slideChange: function () { updateSlideStyles(this); },
+  },
+});
+
+function updateSlideStyles(swiper) {
+  swiper.slides.forEach((slide, index) => {
+    const overlay = slide.querySelector(".overlay");
+    const text = slide.querySelector(".edition-text");
+
+    if (!overlay || !text) return;
+
+    if (index === swiper.activeIndex) {
+      overlay.style.backgroundColor = "rgba(234,156,30,0.35)";
+      text.style.opacity = "1";
+    } else if (index === swiper.activeIndex - 1 || index === swiper.activeIndex + 1) {
+      overlay.style.backgroundColor = "rgba(163,138,99,0.6)";
+      text.style.opacity = "0.5";
+    } else {
+      overlay.style.backgroundColor = "transparent";
+      text.style.opacity = "0";
+    }
+  });
+}
+
+// Click handling function
+function setupClickRedirect(swiper) {
+  swiper.slides.forEach((slide, index) => {
+    slide.addEventListener("click", () => {
+      if (index !== swiper.activeIndex) {
+        // Slide to center first
+        swiper.slideTo(index);
+      } else {
+        // Already center → redirect
+        const link = slide.getAttribute("data-link");
+        if (link) window.location.href = link;
+      }
+    });
+  });
+}
+
+
+</script>
+
+
+
+
+
+<!-- Swiper Pagination Styling -->
+<style>
+  .swiper-pagination-bullet {
+    background-color: #d1bfa7 !important; /* light brown dots */
+    opacity: 1 !important;
+    width: 10px;
+    height: 10px;
+  }
+  .swiper-pagination-bullet-active {
+    background-color: #7B3D00 !important; /* dark brown for active */
+    transform: scale(1.2);
+  }
+</style>
+
+</body>
+
+</html>

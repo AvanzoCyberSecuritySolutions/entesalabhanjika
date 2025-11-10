@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edition 1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Swiper -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+  <!-- Flipbook CSS -->
+  <style>
+    body {
+      background-color: #FFF0D7;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+    }
+
+    section::-webkit-scrollbar {
+      display: none;
+    }
+
+    section {
+      scrollbar-width: none;
+    }
+
+    /* ===== Flipbook Style ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .flipbook {
+      width: 750px;
+      height: 800px;
+      position: relative;
+      z-index: 20;
+    }
+
+    .flipbook .hard {
+      background: #c0392b !important;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .flipbook .hard small {
+      font-style: italic;
+      font-weight: lighter;
+      opacity: 0.7;
+      font-size: 14px;
+    }
+
+    .flipbook .page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    
+
+    .flipbook .page small {
+      font-size: 14px;
+    }
+    
+  </style>
+</head>
+
+<body class="relative font-sans text-gray-800 overflow-x-hidden overflow-y-auto">
+  <section class="relative min-h-screen overflow-x-hidden">
+
+    <!-- Background decorative images -->
+    <img src="images/img1.png" alt="Decor 1"
+      class="absolute z-0 pointer-events-none"
+      style="left: 100px; top: 0px; width: 300px; opacity: 0.2;">
+
+    <img src="images/img2.png" alt="Decor 2"
+      class="absolute z-0 pointer-events-none"
+      style="left: -200px; bottom: 30px; width: 450px; opacity: 0.2;">
+
+    <img src="images/img2.png" alt="Decor 2"
+      class="absolute z-0 pointer-events-none"
+      style="right: -200px; top: 0px; width: 450px; opacity: 0.2;">
+
+    <img src="images/img1.png" alt="Decor 1"
+      class="absolute z-0 -scale-x-100 pointer-events-none"
+      style="right: 0px; bottom: -100px; width: 250px; opacity: 0.2;">
+
+
+    <!-- Fixed navbar -->
+    <nav class="top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50">
+      <div class="text-xl font-bold" style="color: #7B3D00;">Logo</div>
+      <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
+        <li><a href="index.html" class="relative">Home<span
+              class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
+        <li><a href="#editor">Editor</a></li>
+        <li><a href="#writer">Writer</a></li>
+        <li><a href="#feedback">Feedback</a></li>
+      </ul>
+      <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
+    </nav>
+
+    <!-- Book Background Div -->
+    <div class="absolute top-0 left-0 mt-32 w-full z-10 pointer-events-none">
+      <img src="images/book.png" alt="Book Background" class="w-full h-full object-cover">
+
+      <!-- Left Half -->
+      <div class="absolute top-0 left-0 w-1/2 h-full z-0 flex flex-col justify-start items-center"
+        style="padding-top: 10%; padding-left: 15%;">
+        <h1 class="font-bold text-black text-center" style="font-size: clamp(0.8rem, 8vw, 10rem);">
+          EDITION <br> 1
+        </h1>
+      </div>
+
+      <!-- Right Half -->
+      <div class="absolute top-0 right-0 w-1/2 h-full flex flex-col justify-start z-10"
+        style="padding-top: 10%; padding-left: 5%;">
+        <h2 class="font-bold text-black md:ml-6 lg:ml-12" style="font-size: clamp(0.8rem, 2.5vw, 3rem);">
+          Table of Contents
+        </h2>
+        <p class="mt-4 text-black" style="font-size: clamp(0.5rem, 1.8vw, 1.5rem);">
+          Chapter 1: Introduction
+        </p>
+        <p class="mt-2 text-black" style="font-size: clamp(0.5rem, 1.8vw, 1.5rem);">
+          Chapter 2: Features
+        </p>
+        <p class="mt-2 text-black" style="font-size: clamp(0.5rem, 1.8vw, 1.5rem);">
+          Chapter 3: Portfolio
+        </p>
+      </div>
+    </div>
+
+    <!-- 🔥 Flipbook Section Added Here 🔥 -->
+    <div class="relative z-20 mt-[0px] flex justify-center items-center">
+      <div class="flipbook">
+
+        <div class="page">
+          <img src="images/page2.png" alt="Arbok" />
+        </div>
+
+        <div class="page">
+          <img src="images/page2.png" alt="Pikachu" />
+
+        </div>
+
+        <div class="page">
+          <img src="images/img4.png" alt="Mew" />
+          <small>Mew</small>
+        </div>
+
+        <div class="page">
+          <img src="images/img5.png" alt="Darkrai" />
+          <small>Darkrai</small>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Flipbook JS -->
+  <script src="jquery.js"></script>
+  <script src="turn.js"></script>
+  <script>
+    $(".flipbook").turn();
+  </script>
+
+</body>
+
+</html>
