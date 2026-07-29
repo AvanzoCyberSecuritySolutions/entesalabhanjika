@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Reader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="jquery.js"></script>
+  <script src="turn.js"></script>
+  <style>
+    body {
+      background-color: #FFF0D7;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #flipbook-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #flipbook {
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    #flipbook .page {
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.11);
+    }
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    /* Loading overlay */
+    #loading {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #FFF0D7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      font-size: 24px;
+      font-weight: bold;
+      color: #7B3D00;
+    }
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 50;
+      background: #7B3D00;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: background-color 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: #5a2c00;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="in-house.html" class="back-btn">← Back</a>
+  
+  <div id="loading">Loading Book...</div>
+
+  <div id="flipbook-container">
+    <div id="flipbook"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookFile = urlParams.get('book') || 'Natyasasthram.pdf';
+    
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+    
+    let pdfDoc = null;
+    let pagesRendered = {};
+
+    async function loadPDF() {
+      try {
+        const loadingTask = pdfjsLib.getDocument('books/' + bookFile);
+        pdfDoc = await loadingTask.promise;
+        const numPages = pdfDoc.numPages;
+        
+        const flipbook = $('#flipbook');
+        
+        // Add pages
+        for(let i = 1; i <= numPages; i++) {
+          const div = $('<div class="page"><canvas id="page-'+i+'"></canvas></div>');
+          flipbook.append(div);
+        }
+        
+        // Get dimensions from page 1 to set aspect ratio
+        const page1 = await pdfDoc.getPage(1);
+        const viewport = page1.getViewport({ scale: 1 });
+        const aspectRatio = viewport.width / viewport.height;
+        
+        let fbHeight = window.innerHeight * 0.8;
+        let fbWidth = fbHeight * aspectRatio * 2; // times 2 for two-page spread
+        
+        if (fbWidth > window.innerWidth * 0.9) {
+          fbWidth = window.innerWidth * 0.9;
+          fbHeight = (fbWidth / 2) / aspectRatio;
+        }
+
+        flipbook.css({ width: fbWidth + 'px', height: fbHeight + 'px' });
+        
+        // Hide loading
+        $('#loading').fadeOut();
+        
+        // Initialize turn.js
+        flipbook.turn({
+          width: fbWidth,
+          height: fbHeight,
+          autoCenter: true,
+          display: 'double',
+          elevation: 50,
+          gradients: true,
+          when: {
+            turning: function(event, page, view) {
+              renderPages(view);
+            }
+          }
+        });
+        
+        // Render initial view
+        renderPages(flipbook.turn('view'));
+        
+        // Handle resize nicely
+        window.addEventListener('resize', () => {
+          let newHeight = window.innerHeight * 0.8;
+          let newWidth = newHeight * aspectRatio * 2;
+          if (newWidth > window.innerWidth * 0.9) {
+            newWidth = window.innerWidth * 0.9;
+            newHeight = (newWidth / 2) / aspectRatio;
+          }
+          flipbook.turn('size', newWidth, newHeight);
+        });
+        
+      } catch (e) {
+        console.error(e);
+        $('#loading').text('Error loading book.');
+      }
+    }
+
+    async function renderPage(pageNum) {
+      if (pageNum === 0 || pageNum > pdfDoc.numPages) return;
+      if (pagesRendered[pageNum]) return;
+      pagesRendered[pageNum] = true; // Mark as rendering
+      
+      try {
+        const page = await pdfDoc.getPage(pageNum);
+        const canvas = document.getElementById('page-' + pageNum);
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Scale appropriately for clarity
+        const parent = canvas.parentElement;
+        // fallback size if parent is hidden or zero size
+        const pHeight = parent.clientHeight || (window.innerHeight * 0.8);
+        const viewportScale1 = page.getViewport({ scale: 1 });
+        
+        // using devicePixelRatio for sharper text
+        const scale = (pHeight / viewportScale1.height) * (window.devicePixelRatio || 1);
+        const viewport = page.getViewport({ scale: scale });
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
+      } catch (e) {
+        console.error("Error rendering page " + pageNum, e);
+        pagesRendered[pageNum] = false; // allow retry
+      }
+    }
+    
+    function renderPages(view) {
+      // view is an array of current pages [left, right]
+      view.forEach(p => {
+        if(p > 0) renderPage(p);
+      });
+      // pre-render next and previous for smooth turning
+      if (view[1] && view[1] + 1 <= pdfDoc.numPages) renderPage(view[1] + 1);
+      if (view[1] && view[1] + 2 <= pdfDoc.numPages) renderPage(view[1] + 2);
+      if (view[0] && view[0] - 1 > 0) renderPage(view[0] - 1);
+      if (view[0] && view[0] - 2 > 0) renderPage(view[0] - 2);
+    }
+
+    loadPDF();
+  </script>
+</body>
+</html>
