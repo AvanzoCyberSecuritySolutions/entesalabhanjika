@@ -60,7 +60,7 @@
     // Initialize PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    async function renderThumb(pdfUrl, canvasId) {
+    async function renderThumb(pdfUrl, canvasId, cropConfig = null) {
       try {
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
         const pdf = await loadingTask.promise;
@@ -71,8 +71,14 @@
         
         // Setup viewport
         const viewport = page.getViewport({ scale: 1.5 });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        
+        if (cropConfig) {
+          canvas.width = viewport.width * (cropConfig.widthRatio || 1);
+          canvas.height = viewport.height * (cropConfig.heightRatio || 1);
+        } else {
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+        }
         
         const renderContext = {
           canvasContext: ctx,
@@ -86,7 +92,8 @@
 
     // Render covers
     renderThumb('books/Natyasasthram.pdf', 'canvas-natya');
-    renderThumb('books/Thalam.pdf', 'canvas-thalam');
+    // Crop the right 38% and bottom 18% of the Thalam cover to remove the white space
+    renderThumb('books/Thalam.pdf', 'canvas-thalam', { widthRatio: 0.62, heightRatio: 0.82 });
   </script>
 </body>
 </html>
