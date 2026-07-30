@@ -7,6 +7,7 @@
   <title>Edition 1</title>
   <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="navbar.js" defer></script>
   <!-- Include Swiper CSS & JS -->
 <link
   rel="stylesheet"
@@ -200,16 +201,7 @@
 
 
   <!-- Fixed navbar -->
-<nav class="top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50">
-  <div class="text-xl font-bold" style="color: #7B3D00;">Logo</div>
-  <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
-    <li><a href="index.html" class="relative">Home<span class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
-    <li><a href="#editor">Editor</a></li>
-    <li><a href="#writer">Writer</a></li>
-    <li><a href="#feedback">Feedback</a></li>
-  </ul>
-  <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
-</nav>
+<custom-navbar></custom-navbar>
 
     <!-- Book Background Div -->
 

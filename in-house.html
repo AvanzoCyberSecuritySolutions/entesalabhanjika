@@ -6,6 +6,7 @@
   <title>In-house Books</title>
   <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="navbar.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     body {
@@ -27,17 +28,7 @@
   <img src="images/img1.png" alt="Decor 1" class="absolute top-0 left-0 w-[450px] opacity-20 z-0 pointer-events-none">
   
   <!-- Fixed navbar -->
-  <nav class="fixed top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50 bg-[#FFF0D7] bg-opacity-90">
-    <div class="text-xl font-bold"><img src="images/entelogo-removebg-preview.png" alt="Logo" style="height: 100px; width: auto;"></div>
-    <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="index.html#editor">Editor</a></li>
-      <li><a href="index.html#writer">Writer</a></li>
-      <li><a href="in-house.html" class="relative">In-house<span class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
-      <li><a href="index.html#feedback">Feedback</a></li>
-    </ul>
-    <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
-  </nav>
+  <custom-navbar></custom-navbar>
 
   <section class="relative z-40 pt-40 px-6 max-w-6xl mx-auto">
     <h1 class="text-4xl font-bold text-center mb-12" style="color: #7B3D00;">In-house Books</h1>

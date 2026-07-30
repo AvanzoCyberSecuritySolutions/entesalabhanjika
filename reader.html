@@ -146,12 +146,15 @@
         const viewport = page1.getViewport({ scale: 1 });
         const aspectRatio = viewport.width / viewport.height;
         
+        const isMobile = window.innerWidth < 768;
+        const displayMode = isMobile ? 'single' : 'double';
+        
         let fbHeight = window.innerHeight * 0.8;
-        let fbWidth = fbHeight * aspectRatio * 2; // times 2 for two-page spread
+        let fbWidth = isMobile ? (fbHeight * aspectRatio) : (fbHeight * aspectRatio * 2);
         
         if (fbWidth > window.innerWidth * 0.9) {
           fbWidth = window.innerWidth * 0.9;
-          fbHeight = (fbWidth / 2) / aspectRatio;
+          fbHeight = isMobile ? (fbWidth / aspectRatio) : ((fbWidth / 2) / aspectRatio);
         }
 
         flipbook.css({ width: fbWidth + 'px', height: fbHeight + 'px' });
@@ -164,7 +167,7 @@
           width: fbWidth,
           height: fbHeight,
           autoCenter: true,
-          display: 'double',
+          display: displayMode,
           elevation: 50,
           gradients: true,
           when: {
@@ -179,12 +182,14 @@
         
         // Handle resize nicely
         window.addEventListener('resize', () => {
+          const isMobileResize = window.innerWidth < 768;
           let newHeight = window.innerHeight * 0.8;
-          let newWidth = newHeight * aspectRatio * 2;
+          let newWidth = isMobileResize ? (newHeight * aspectRatio) : (newHeight * aspectRatio * 2);
           if (newWidth > window.innerWidth * 0.9) {
             newWidth = window.innerWidth * 0.9;
-            newHeight = (newWidth / 2) / aspectRatio;
+            newHeight = isMobileResize ? (newWidth / aspectRatio) : ((newWidth / 2) / aspectRatio);
           }
+          flipbook.turn('display', isMobileResize ? 'single' : 'double');
           flipbook.turn('size', newWidth, newHeight);
         });
         

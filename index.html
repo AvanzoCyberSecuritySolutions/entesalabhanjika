@@ -7,6 +7,7 @@
   <title>Entesalabhanjika</title>
   <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="navbar.js" defer></script>
   <style>
     body {
       background-color: #FFF0D7;
@@ -35,6 +36,7 @@
   }
 
   .vector-slide {
+    container-type: inline-size;
     flex: 0 0 clamp(250px, 55vw, 500px);
     scroll-snap-align: center;
     aspect-ratio: 1 / 1;
@@ -108,31 +110,7 @@
 
 
   <!-- Fixed navbar -->
-<nav class="fixed top-0 left-0 w-full flex justify-between items-center px-4 md:px-6 py-8 z-50">
-  <div class="text-xl font-bold"><img src="images/entelogo-removebg-preview.png" alt="Logo" style="height: 100px; width: auto;"></div>
-  <ul class="hidden md:flex space-x-12 font-medium" style="color: #7B3D00;">
-    <li><a href="#home" class="relative">Home<span class="absolute left-0 -bottom-1 w-full h-1 bg-[#EA9C1E] rounded-full"></span></a></li>
-    <li><a href="#editor">Editor</a></li>
-    <li><a href="#writer">Writer</a></li>
-    <li><a href="in-house.html">In-house</a></li>
-    <li><a href="#feedback">Feedback</a></li>
-  </ul>
-  <div id="mobile-menu-btn" class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
-</nav>
-
-<!-- Mobile Drawer -->
-<dialog id="mobile-drawer" class="ml-auto mr-0 h-full max-h-none w-64 bg-[#FFF0D7] shadow-2xl p-8 m-0 border-none outline-none">
-  <div class="flex justify-end mb-8">
-    <button id="close-menu-btn" class="text-4xl text-[#7B3D00] cursor-pointer bg-transparent border-none outline-none">&times;</button>
-  </div>
-  <ul class="flex flex-col space-y-6 font-medium text-lg" style="color: #7B3D00;">
-    <li><a href="#home">Home</a></li>
-    <li><a href="#editor">Editor</a></li>
-    <li><a href="#writer">Writer</a></li>
-    <li><a href="in-house.html">In-house</a></li>
-    <li><a href="#feedback">Feedback</a></li>
-  </ul>
-</dialog>
+<custom-navbar></custom-navbar>
 
 <!-- Search Bar -->
 <div class="mt-[180px] md:mt-[220px] flex justify-center px-4 z-40">
@@ -152,13 +130,13 @@
       <!-- Slide 1 -->
       <!-- Example slide -->
 <div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition1.html" role="button" tabindex="0" aria-label="Open Edition 1">
-  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" fetchpriority="high"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
 
   <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
   </div>
-  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
+  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1rem,10cqi,6rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
     EDITION 1
   </h1>
 </div>
@@ -166,13 +144,13 @@
 
       <!-- Slide 2 -->
       <div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition2.html" role="button" tabindex="0" aria-label="Open Edition 2">
-  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" fetchpriority="high"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
 
   <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
   </div>
-  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
+  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1rem,10cqi,6rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
     EDITION 2
   </h1>
 </div>
@@ -185,7 +163,7 @@
   <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
   </div>
-  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1rem,10cqi,6rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
     EDITION 3
   </h1>
 </div>
@@ -198,7 +176,7 @@
   <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
   </div>
-  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1rem,10cqi,6rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
     EDITION 4
   </h1>
 </div>
@@ -211,7 +189,7 @@
   <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
        style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
   </div>
-  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1rem,10cqi,6rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
     EDITION 5
   </h1>
 </div>
@@ -232,20 +210,8 @@ document.querySelectorAll('.vector-slide').forEach(slide => {
     if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
     if (e.type === 'keydown') e.preventDefault(); // Prevent scroll on spacebar
 
-    const scroller = document.querySelector('.scroller');
-    const slideRect = slide.getBoundingClientRect();
-    const scrollerRect = scroller.getBoundingClientRect();
-    const slideCenter = slideRect.left + slideRect.width / 2;
-    const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
-    
-    // If the clicked slide is in the center, redirect.
-    if (Math.abs(slideCenter - scrollerCenter) < 50) {
-      const link = slide.getAttribute("data-link");
-      if (link) window.location.href = link;
-    } else {
-      // Otherwise scroll it into view naturally
-      slide.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
+    const link = slide.getAttribute("data-link");
+    if (link) window.location.href = link;
   };
   
   slide.addEventListener('click', handleInteraction);
@@ -299,44 +265,12 @@ if (!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')) 
   window.addEventListener('resize', tick);
   tick();
 }
-
-
-
-
-const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-const mobileDrawer = document.getElementById('mobile-drawer');
-
-function openDrawer() {
-  if (mobileDrawer) mobileDrawer.showModal();
-}
-
-function closeDrawer() {
-  if (!mobileDrawer) return;
-  mobileDrawer.classList.add('closing');
-  setTimeout(() => {
-    mobileDrawer.close();
-    mobileDrawer.classList.remove('closing');
-  }, 290);
-}
-
-if (mobileMenuBtn && mobileDrawer) {
-  mobileMenuBtn.addEventListener('click', openDrawer);
-  
-  const closeBtn = mobileDrawer.querySelector('#close-menu-btn');
-  if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-  
-  // Close when clicking outside the dialog content
-  mobileDrawer.addEventListener('click', (e) => {
-    if (e.target === mobileDrawer) {
-      closeDrawer();
-    }
-  });
-
-  mobileDrawer.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', closeDrawer);
-  });
-}
 </script>
+
+
+
+
+
 
 
 

@@ -1,0 +1,431 @@
+duplicate.html |   1 +
+ edition1.html  |   1 +
+ edition2.html  |   1 +
+ edition3.html  |   1 +
+ edition4.html  |   1 +
+ edition5.html  |   1 +
+ in-house.html  |   1 +
+ index.html     | 333 +++++++++++++++++++++++++++++++++------------------------
+ reader.html    |   1 +
+ 9 files changed, 202 insertions(+), 139 deletions(-)
+
+Changes:
+
+duplicate.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+   
+     <!-- Swiper -->
+  +1 -0
+
+edition1.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <!-- Include Swiper CSS & JS -->
+   <link
+  +1 -0
+
+edition2.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <!-- Include Swiper CSS & JS -->
+   <link
+  +1 -0
+
+edition3.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <!-- Include Swiper CSS & JS -->
+   <link
+  +1 -0
+
+edition4.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <!-- Include Swiper CSS & JS -->
+   <link
+  +1 -0
+
+edition5.html
+  @@ -5,6 +5,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <!-- Include Swiper CSS & JS -->
+   <link
+  +1 -0
+
+in-house.html
+  @@ -4,6 +4,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+     <style>
+  +1 -0
+
+index.html
+  @@ -5,18 +5,12 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+  -  <!-- Include Swiper CSS & JS -->
+  -<link
+  -  rel="stylesheet"
+  -  href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+  -/>
+  -<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+     <style>
+       body {
+         background-color: #FFF0D7;
+         position: relative;
+  -      overflow: hidden;
+         min-height: 100vh;
+       }
+   
+  @@ -27,58 +21,75 @@
+  -  /* Default for small devices */
+  -  .vector-slide {
+  -    width: 150px;
+  -    height: 150px;
+  +  .scroller {
+  +    display: flex;
+  +    overflow-x: scroll;
+  +    scroll-snap-type: x mandatory;
+  +    scroll-behavior: smooth;
+  +    gap: 0;
+  +    padding: 0 calc(50vw - min(max(250px, 55vw), 500px) / 2);
+  +    scrollbar-width: none;
+  +  }
+  +  .scroller::-webkit-scrollbar {
+  +    display: none;
+     }
+   
+  -  /* Small devices */
+  -  @media (min-width: 500px) {
+  -    .vector-slide {
+  -      width: 200px;
+  -      height: 200px;
+  -    }
+  +  .vector-slide {
+  +    flex: 0 0 clamp(250px, 55vw, 500px);
+  +    scroll-snap-align: center;
+  +    aspect-ratio: 1 / 1;
+  +    position: relative;
+  +    display: flex;
+  +    justify-content: center;
+  +    view-timeline: --slide-timeline inline;
+  +    animation: slide-scale auto linear both;
+  +    animation-timeline: --slide-timeline;
+     }
+   
+  -  /* Small devices */
+  -  @media (min-width: 700px) {
+  -    .vector-slide {
+  -      width: 200px;
+  -      height: 200px;
+  -    }
+  +  @keyframes slide-scale {
+  +    0% { transform: scale(0.85); }
+  +    50% { transform: scale(1); }
+  +    100% { transform: scale(0.85); }
+     }
+   
+  -   /* Medium devices */
+  -  @media (min-width: 800px) {
+  -    .vector-slide {
+  -      width: 250px;
+  -      height: 250px; /* your requested 300px */
+  -    }
+  +  .vector-slide .overlay {
+  +    animation: slide-overlay auto linear both;
+  +    animation-timeline: --slide-timeline;
+     }
+   
+  -  /* Medium devices */
+  -  @media (min-width: 900px) {
+  -    .vector-slide {
+  -      width: 300px;
+  -      height: 300px; /* your requested 300px */
+  -    }
+  +  @keyframes slide-overlay {
+  +    0%, 100% { background-color: transparent; }
+  +    20%, 80% { background-color: rgba(163,138,99,0.6); }
+  +    50% { background-color: rgba(234,156,30,0.35); }
+     }
+   
+  -  /* Medium devices */
+  -  @media (min-width: 1100px) {
+  -    .vector-slide {
+  -      width: 400px;
+  -      height: 400px; /* your requested 300px */
+  -    }
+  +  .vector-slide .edition-text {
+  +    animation: slide-text auto linear both;
+  +    animation-timeline: --slide-timeline;
+     }
+   
+  -  /* Large devices */
+  -  @media (min-width: 1440px) {
+  -    .vector-slide {
+  -      width: 500px;
+  -      height: 500px;
+  -    }
+  +  @keyframes slide-text {
+  +    0%, 100% { opacity: 0; }
+  +    20%, 80% { opacity: 0.5; }
+  +    50% { opacity: 1; }
+  +  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  +  @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+  +  @keyframes backdropFade { from { opacity: 0; } to { opacity: 1; } }
+  +  @keyframes backdropFadeOut { from { opacity: 1; } to { opacity: 0; } }
+  +
+  +  dialog[open] {
+  +    animation: slideInRight 0.3s ease-out forwards;
+  +  }
+  +  dialog[open]::backdrop {
+  ... (9 lines truncated)
+  @@ -87,11 +98,11 @@
+  -  <img src="images/img1.png" alt="Decor 1" class="absolute top-0 left-0 w-[450px] opacity-20 z-0 pointer-events-none">
+  -  <img src="images/img3.png" alt="Decor 2"
+  +  <img src="images/img1.png" alt="" aria-hidden="true" loading="lazy" class="absolute top-0 left-0 w-[450px] opacity-20 z-0 pointer-events-none">
+  +  <img src="images/img3.png" alt="" aria-hidden="true" loading="lazy"
+        class="absolute top-50 left-390 w-[1200px] opacity-25 z-0 pointer-events-none hidden md:block">
+   
+  -<img src="images/img1.png" alt="Decor 3"
+  +<img src="images/img1.png" alt="" aria-hidden="true" loading="lazy"
+        class="absolute top-24 right-0 w-[350px] opacity-20 -scale-x-100 z-0 pointer-events-none hidden md:block">
+   
+   
+  @@ -106,9 +117,23 @@
+  -  <div class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
+  +  <div id="mobile-menu-btn" class="md:hidden text-2xl text-[#7B3D00] cursor-pointer">☰</div>
+   </nav>
+   
+  +<!-- Mobile Drawer -->
+  +<dialog id="mobile-drawer" class="ml-auto mr-0 h-full max-h-none w-64 bg-[#FFF0D7] shadow-2xl p-8 m-0 border-none outline-none">
+  +  <div class="flex justify-end mb-8">
+  +    <button id="close-menu-btn" class="text-4xl text-[#7B3D00] cursor-pointer bg-transparent border-none outline-none">&times;</button>
+  +  </div>
+  +  <ul class="flex flex-col space-y-6 font-medium text-lg" style="color: #7B3D00;">
+  +    <li><a href="#home">Home</a></li>
+  +    <li><a href="#editor">Editor</a></li>
+  +    <li><a href="#writer">Writer</a></li>
+  +    <li><a href="in-house.html">In-house</a></li>
+  +    <li><a href="#feedback">Feedback</a></li>
+  +  </ul>
+  +</dialog>
+  +
+   <!-- Search Bar -->
+   <div class="mt-[180px] md:mt-[220px] flex justify-center px-4 z-40">
+     <div class="flex items-center w-full max-w-[800px] bg-[#DBC5A1] rounded-full px-6 py-4 shadow-lg">
+  @@ -122,82 +147,77 @@
+  -  <div class="swiper mySwiper !overflow-visible">
+  -    <div class="swiper-wrapper">
+  +  <div class="scroller">
+   
+         <!-- Slide 1 -->
+         <!-- Example slide -->
+  -<div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition1.html">
+  -  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+  +<div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition1.html" role="button" tabindex="0" aria-label="Open Edition 1">
+  +  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+   
+     <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+     </div>
+  -  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+  +  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
+       EDITION 1
+     </h1>
+   </div>
+   
+   
+         <!-- Slide 2 -->
+  -      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition2.html">
+  -  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+  +      <div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition2.html" role="button" tabindex="0" aria-label="Open Edition 2">
+  +  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+   
+     <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+     </div>
+  -  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+  +  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white whitespace-nowrap">
+       EDITION 2
+     </h1>
+   </div>
+   
+         <!-- Slide 3 -->
+  -      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition3.html">
+  -  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+  +      <div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition3.html" role="button" tabindex="0" aria-label="Open Edition 3">
+  +  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" fetchpriority="high"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+   
+     <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+     </div>
+  -  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+  +  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+       EDITION 3
+     </h1>
+   </div>
+   
+         <!-- Slide 4 -->
+  -<div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition4.html">
+  -  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+  +<div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition4.html" role="button" tabindex="0" aria-label="Open Edition 4">
+  +  <img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+   
+     <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+     </div>
+  -  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+  +  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+       EDITION 4
+     </h1>
+   </div>
+   
+         <!-- Slide 5 -->
+  -      <div class="swiper-slide relative flex justify-center mb-8 lg:mb-0 vector-slide" data-link="edition5.html">
+  -<img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10"
+  +      <div class="relative flex justify-center mb-8 lg:mb-0 vector-slide select-none" data-link="edition5.html" role="button" tabindex="0" aria-label="Open Edition 5">
+  +<img src="https://i.ibb.co/nNKRyCBT/edition.jpg" class="w-full h-full object-cover z-10" loading="lazy"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+   
+     <div class="absolute top-0 left-0 w-full h-full z-20 pointer-events-none overlay"
+          style="-webkit-mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); mask-image: url('https://i.ibb.co/jZ9fg3xr/Vector.png'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;">
+     </div>
+  -  <h1 class="absolute inset-0 flex items-center justify-center text-4xl lg:text-[100px] font-bold z-30 edition-text text-white">
+  +  <h1 class="absolute inset-0 flex items-center justify-center text-[clamp(1.5rem,6vw,6.25rem)] font-bold z-30 edition-text text-white">
+       EDITION 5
+     </h1>
+   </div>
+   
+   
+   
+  -    </div>
+  -
+  -    <!-- Pagination Dots -->
+  -    <div class="swiper-pagination !bottom-[-30px]"></div>
+     </div>
+   </section>
+   
+  @@ -206,88 +226,123 @@
+  -const swiper = new Swiper(".mySwiper", {
+  -  slidesPerView: 1.8,
+  -  centeredSlides: true,
+  -  spaceBetween: 0,
+  -  grabCursor: true,
+  -  loop: false,
+  -  initialSlide: 2,
+  -  pagination: {
+  -    el: ".swiper-pagination",
+  -    clickable: true,
+  -  },
+  -  breakpoints: {
+  -    640: { slidesPerView: 2.3 },
+  -    768: { slidesPerView: 2.2 },
+  -    1024: { slidesPerView: 2.1 },
+  -    1280: { slidesPerView: 2.0 }
+  -  },
+  -  on: {
+  -    init: function () { 
+  -      updateSlideStyles(this);
+  -      setupClickRedirect(this);
+  -    },
+  -    slideChange: function () { updateSlideStyles(this); },
+  -  },
+  +document.querySelectorAll('.vector-slide').forEach(slide => {
+  +  const handleInteraction = (e) => {
+  +    // Only process clicks and 'Enter' or 'Space' keys
+  +    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  +    if (e.type === 'keydown') e.preventDefault(); // Prevent scroll on spacebar
+  +
+  +    const scroller = document.querySelector('.scroller');
+  +    const slideRect = slide.getBoundingClientRect();
+  +    const scrollerRect = scroller.getBoundingClientRect();
+  +    const slideCenter = slideRect.left + slideRect.width / 2;
+  +    const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
+  +    
+  +    // If the clicked slide is in the center, redirect.
+  +    if (Math.abs(slideCenter - scrollerCenter) < 50) {
+  +      const link = slide.getAttribute("data-link");
+  +      if (link) window.location.href = link;
+  +    } else {
+  +      // Otherwise scroll it into view naturally
+  +      slide.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  +    }
+  +  };
+  +  
+  +  slide.addEventListener('click', handleInteraction);
+  +  slide.addEventListener('keydown', handleInteraction);
+   });
+   
+  -function updateSlideStyles(swiper) {
+  -  swiper.slides.forEach((slide, index) => {
+  -    const overlay = slide.querySelector(".overlay");
+  -    const text = slide.querySelector(".edition-text");
+  +// Fallback for browsers that don't support scroll-driven animations (e.g. Safari < 18, Firefox)
+  +if (!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')) {
+  +  const scroller = document.querySelector('.scroller');
+  +  const entries = document.querySelectorAll('.vector-slide');
+  +  const animations = new Map();
+  +  
+  +  entries.forEach(entry => {
+  +    const overlay = entry.querySelector('.overlay');
+  +    const text = entry.querySelector('.edition-text');
+  +    
+  +    const slideAnim = entry.animate({ transform: ['scale(0.85)', 'scale(1)', 'scale(0.85)'] }, { duration: 1, fill: 'both' });
+  +    slideAnim.pause();
+  +    
+  +    const overlayAnim = overlay.animate(
+  +      { backgroundColor: ['transparent', 'rgba(163,138,99,0.6)', 'rgba(234,156,30,0.35)', 'rgba(163,138,99,0.6)', 'transparent'] },
+  +      { duration: 1, fill: 'both' }
+  +    );
+  +    overlayAnim.pause();
+  +    
+  +    const textAnim = text.animate(
+  +      { opacity: ['0', '0.5', '1', '0.5', '0'] },
+  +      { duration: 1, fill: 'both' }
+  +    );
+  +    textAnim.pause();
+  +    
+  +    animations.set(entry, { slideAnim, overlayAnim, textAnim });
+  +  });
+  +  
+  +  const tick = () => {
+  +    const scrollerRect = scroller.getBoundingClientRect();
+  +    entries.forEach(entry => {
+  +      const anims = animations.get(entry);
+  +      if (!anims) return;
+  +      const entryRect = entry.getBoundingClientRect();
+  +      const progress = (entryRect.left + entryRect.width / 2 - scrollerRect.left) / scrollerRect.width;
+  +      const p = Math.max(0, Math.min(1, progress));
+  +      
+  +      anims.slideAnim.currentTime = p;
+  +      anims.overlayAnim.currentTime = p;
+  +      anims.textAnim.currentTime = p;
+  +    });
+  +  };
+  +  
+  +  scroller.addEventListener('scroll', tick);
+  +  window.addEventListener('resize', tick);
+  +  tick();
+  ... (71 lines truncated)
+  +194 -139
+
+reader.html
+  @@ -4,6 +4,7 @@
+  +  <link rel="icon" type="image/png" href="images/entelogo-removebg-preview.png">
+     <script src="https://cdn.tailwindcss.com"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+     <script src="jquery.js"></script>
+  +1 -0
+[full diff: rtk git diff --no-compact]
