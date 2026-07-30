@@ -21,6 +21,9 @@
   section {
     scrollbar-width: none;
   }
+  :root {
+    --slide-size: clamp(200px, min(55vw, 40dvh), 500px);
+  }
 
   .scroller {
     display: flex;
@@ -28,7 +31,7 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     gap: 0;
-    padding: 0 calc(50vw - min(max(250px, 55vw), 500px) / 2);
+    padding: 0 calc(50vw - var(--slide-size) / 2);
     scrollbar-width: none;
   }
   .scroller::-webkit-scrollbar {
@@ -37,7 +40,7 @@
 
   .vector-slide {
     container-type: inline-size;
-    flex: 0 0 clamp(250px, 55vw, 500px);
+    flex: 0 0 var(--slide-size);
     scroll-snap-align: center;
     aspect-ratio: 1 / 1;
     position: relative;
@@ -113,7 +116,7 @@
 <custom-navbar></custom-navbar>
 
 <!-- Search Bar -->
-<div class="mt-[180px] md:mt-[220px] flex justify-center px-4 z-40">
+<div class="mt-[clamp(120px,20dvh,220px)] flex justify-center px-4 z-40">
   <div class="flex items-center w-full max-w-[800px] bg-[#DBC5A1] rounded-full px-6 py-4 shadow-lg">
     <img src="images/search.png" alt="Search" class="w-6 h-6 mr-3">
     <input type="text" placeholder="Search"
@@ -124,7 +127,7 @@
 
 
 
-<section class="relative mt-20 z-50 pb-32">
+<section class="relative mt-[clamp(2rem,5dvh,5rem)] z-50 pb-[clamp(2rem,8dvh,8rem)]">
   <div class="scroller">
 
       <!-- Slide 1 -->
