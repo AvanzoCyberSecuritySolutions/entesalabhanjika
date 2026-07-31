@@ -45,6 +45,12 @@
         <canvas id="canvas-thalam" class="w-full h-[400px] object-cover border-b border-gray-200 bg-gray-100"></canvas>
         <h2 class="mt-4 text-xl font-bold text-[#7B3D00]">Thalam</h2>
       </a>
+
+      <!-- Book 3 -->
+      <a href="reader.html?book=make-up-text-book.pdf" class="book-card bg-white rounded-xl shadow-xl overflow-hidden block text-center pb-4 border border-[#DBC5A1]">
+        <canvas id="canvas-makeup" class="w-full h-[400px] object-cover border-b border-gray-200 bg-gray-100"></canvas>
+        <h2 class="mt-4 text-xl font-bold text-[#7B3D00]">Make-up Text Book</h2>
+      </a>
     </div>
   </section>
 
@@ -86,6 +92,7 @@
     renderThumb('books/Natyasasthram.pdf', 'canvas-natya');
     // Crop the right 38% and bottom 18% of the Thalam cover to remove the white space
     renderThumb('books/Thalam.pdf', 'canvas-thalam', { widthRatio: 0.62, heightRatio: 0.82 });
+    renderThumb('books/make-up-text-book.pdf', 'canvas-makeup');
   </script>
 </body>
 </html>
