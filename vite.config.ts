@@ -17,6 +17,9 @@ const pagesDir = resolve(rootDir, "src/pages");
 const FIXED_ENTRIES: Record<string, string> = {
   main: "index.html",
   "in-house": "in-house.html",
+  editor: "editor.html",
+  writer: "writer.html",
+  feedback: "feedback.html",
 };
 
 /**

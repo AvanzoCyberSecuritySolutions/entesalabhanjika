@@ -20,7 +20,15 @@ import { derivedCoverUrl } from "../content/derived-assets";
 import type { Publication } from "../content/publication";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const readerPagesDir = resolve(projectRoot, "src/pages/reader");
+const pagesDir = resolve(projectRoot, "src/pages");
+const readerPagesDir = resolve(pagesDir, "reader");
+
+/** Sections announced in the nav but not yet written. Real routes so the urls are final now and only the body changes later; noindex so search engines do not index empty pages. */
+const COMING_SOON: readonly { slug: string; title: string; blurb: string }[] = [
+  { slug: "editor", title: "Editor", blurb: "Notes from the editor's desk." },
+  { slug: "writer", title: "Writer", blurb: "Voices and writing from our contributors." },
+  { slug: "feedback", title: "Feedback", blurb: "Tell us what you think of the magazine." },
+];
 
 const SITE_NAME = "Ente Salabhanjika";
 
@@ -70,6 +78,67 @@ ${head({ title: `${pub.title} — ${SITE_NAME}`, description: describe(pub), ima
 `;
 }
 
+function shell(body: string, opts: { title: string; description: string; image?: string; noindex?: boolean; bodyClass?: string }): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+${head(opts)}
+  </head>
+  <body class="${opts.bodyClass ?? "bg-cream text-brown"}">
+    <site-navbar></site-navbar>
+${body}
+    <script type="module" src="./site-entry.ts"></script>
+  </body>
+</html>
+`;
+}
+
+/** A Publication card. Placeholder Publications render as a non-interactive card, so nothing links to a reader that does not exist. */
+function card(pub: Publication): string {
+  const cover = derivedCoverUrl(pub.slug, 480);
+  const srcset = [480, 960].map((w) => `${derivedCoverUrl(pub.slug, w)} ${w}w`).join(", ");
+  const img = `<img class="pub-card-cover" src="${cover}" srcset="${srcset}" sizes="(max-width: 700px) 90vw, 320px" alt="Cover of ${escapeHtml(pub.title)}" width="480" height="640" loading="lazy" decoding="async" />`;
+
+  if (pub.placeholder) {
+    return `        <li class="pub-card is-placeholder">
+          ${img}
+          <h2 class="pub-card-title">${escapeHtml(pub.title)}</h2>
+          <p class="pub-card-note">Coming soon</p>
+        </li>`;
+  }
+  return `        <li class="pub-card">
+          <a class="pub-card-link" href="/reader/${escapeHtml(pub.slug)}.html">
+            ${img}
+            <h2 class="pub-card-title">${escapeHtml(pub.title)}</h2>
+          </a>
+        </li>`;
+}
+
+function collectionPage(collection: "editions" | "in-house-books", heading: string, description: string): string {
+  const items = publications.filter((p) => p.collection === collection).map(card).join("\n");
+  return shell(
+    `    <main class="page-main">
+      <h1 class="page-heading">${escapeHtml(heading)}</h1>
+      <ul class="pub-grid">
+${items}
+      </ul>
+    </main>`,
+    { title: collection === "editions" ? SITE_NAME : `${heading} — ${SITE_NAME}`, description }
+  );
+}
+
+function comingSoonPage(entry: { slug: string; title: string; blurb: string }): string {
+  return shell(
+    `    <main class="page-main page-main--centered">
+      <h1 class="page-heading">${escapeHtml(entry.title)}</h1>
+      <p class="page-lede">${escapeHtml(entry.blurb)}</p>
+      <p class="page-note">This section is coming soon.</p>
+      <p><a class="page-back" href="/">&larr; Back to ${escapeHtml(SITE_NAME)}</a></p>
+    </main>`,
+    { title: `${entry.title} — ${SITE_NAME}`, description: entry.blurb, noindex: true }
+  );
+}
+
 function main(): void {
   rmSync(readerPagesDir, { recursive: true, force: true });
   mkdirSync(readerPagesDir, { recursive: true });
@@ -79,7 +148,22 @@ function main(): void {
     writeFileSync(resolve(readerPagesDir, `${pub.slug}.html`), readerPage(pub), "utf8");
   }
 
+  writeFileSync(
+    resolve(pagesDir, "index.html"),
+    collectionPage("editions", "Editions", `${SITE_NAME} — read every edition of the magazine online in a page-turning reader.`),
+    "utf8"
+  );
+  writeFileSync(
+    resolve(pagesDir, "in-house.html"),
+    collectionPage("in-house-books", "In-house Books", "Read our in-house books online in a page-turning reader."),
+    "utf8"
+  );
+  for (const entry of COMING_SOON) {
+    writeFileSync(resolve(pagesDir, `${entry.slug}.html`), comingSoonPage(entry), "utf8");
+  }
+
   console.log(`[build-pages] generated ${readable.length} reader page(s) into src/pages/reader/`);
+  console.log(`[build-pages] generated index.html, in-house.html and ${COMING_SOON.length} coming-soon page(s).`);
   const skipped = publications.length - readable.length;
   if (skipped > 0) {
     console.log(`[build-pages] skipped ${skipped} Placeholder Publication(s) — they have no Pages and cannot be opened.`);

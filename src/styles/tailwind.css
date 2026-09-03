@@ -1,3 +1,5 @@
+@import "./pages.css";
+@import "./navbar.css";
 @import "./reader.css";
 
 @tailwind base;

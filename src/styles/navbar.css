@@ -1,0 +1,103 @@
+/* Site navigation. Palette is cream/brown/amber throughout — no dark theme. */
+
+.site-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem clamp(1rem, 4vw, 2rem);
+}
+
+.site-nav-logo img {
+  height: clamp(56px, 9vw, 100px);
+  width: auto;
+  display: block;
+}
+
+.site-nav-links {
+  display: none;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 500;
+  color: #7b3d00;
+}
+
+@media (min-width: 768px) {
+  .site-nav-links { display: flex; }
+  .site-nav-toggle { display: none; }
+}
+
+.site-nav-link,
+.site-drawer-link {
+  position: relative;
+  color: #7b3d00;
+  text-decoration: none;
+}
+
+.site-nav-link:hover,
+.site-drawer-link:hover { color: #ea9c1e; }
+
+/* Active page marker. The old navbar injected a <span> into the link's innerHTML to draw this; a pseudo-element cannot be clobbered by later innerHTML writes. */
+.site-nav-link.is-current::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.35rem;
+  height: 3px;
+  border-radius: 999px;
+  background: #ea9c1e;
+}
+
+.site-nav-link:focus-visible,
+.site-drawer-link:focus-visible,
+.site-nav-toggle:focus-visible,
+.site-drawer-close:focus-visible {
+  outline: 3px solid #ea9c1e;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.site-nav-toggle,
+.site-drawer-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #7b3d00;
+  font-size: 1.75rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+}
+
+.site-drawer-close { font-size: 2.25rem; }
+
+.site-drawer {
+  margin: 0 0 0 auto;
+  height: 100%;
+  max-height: none;
+  width: min(17rem, 80vw);
+  padding: 2rem;
+  border: none;
+  background: #fff0d7;
+  box-shadow: -8px 0 24px rgb(0 0 0 / 0.18);
+}
+
+.site-drawer-head { display: flex; justify-content: flex-end; margin-bottom: 2rem; }
+.site-drawer-links { display: flex; flex-direction: column; gap: 1.5rem; font-size: 1.125rem; font-weight: 500; }
+
+/* These keyframes previously lived only in index.html, inside an unclosed @keyframes block, so they never existed anywhere. They belong with the component that uses them. */
+@keyframes site-drawer-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes site-drawer-out { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes site-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes site-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .site-drawer[open] { animation: site-drawer-in 0.3s ease-out both; }
+  .site-drawer[open]::backdrop { animation: site-backdrop-in 0.3s ease-out both; }
+  .site-drawer.is-closing { animation: site-drawer-out 0.28s ease-in both; }
+  .site-drawer.is-closing::backdrop { animation: site-backdrop-out 0.28s ease-in both; }
+}
+
+.site-drawer::backdrop { background: rgb(0 0 0 / 0.5); backdrop-filter: blur(4px); }

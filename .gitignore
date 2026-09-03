@@ -14,3 +14,10 @@ public/derived/
 
 # Generated reader pages (scripts/build-pages.ts, from the Publication manifest).
 src/pages/reader/
+
+# Generated site pages (scripts/build-pages.ts).
+src/pages/index.html
+src/pages/in-house.html
+src/pages/editor.html
+src/pages/writer.html
+src/pages/feedback.html
