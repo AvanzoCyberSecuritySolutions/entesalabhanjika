@@ -111,3 +111,43 @@ export function derivedThumbnailUrl(slug: string, pageNumber: number): string {
 export function derivedCoverUrl(slug: string, width: PageWidth | number): string {
   return `/derived/${slug}/${derivedCoverFilename(width)}`;
 }
+
+/**
+ * Per-Publication sidecar metadata written by `scripts/build-assets.ts`
+ * once it has actually rendered/derived a Publication's pages, and read at
+ * runtime by `src/page-sources/DerivedImagePageSource` instead of guessing
+ * intrinsic dimensions or which widths exist on disk. One JSON file per
+ * Publication, sitting alongside its derived pages.
+ */
+export interface DerivedPageMetadata {
+  /** 1-based position within the Publication, matching PageManifestEntry.pageNumber. */
+  pageNumber: number;
+  /** Intrinsic pixel size of the source this page was derived from (the original scan, or the rasterized PDF page) — never upscaled past this. */
+  intrinsicWidth: number;
+  intrinsicHeight: number;
+  /** Which of PAGE_WIDTHS were actually produced for this page, ascending, each <= intrinsicWidth. */
+  widths: number[];
+  /** Whether a THUMBNAIL_WIDTH thumbnail was produced for this page (always true in practice; false only if intrinsicWidth is smaller than THUMBNAIL_WIDTH). */
+  hasThumbnail: boolean;
+}
+
+/** The full sidecar document for one Publication. */
+export interface DerivedPublicationSidecar {
+  slug: string;
+  pageCount: number;
+  pages: DerivedPageMetadata[];
+}
+
+/**
+ * Filesystem path (relative to repo root) of a Publication's sidecar
+ * metadata JSON. Generator-side (scripts/build-assets.ts) helper, paired
+ * with derivedSidecarUrl() for the runtime consumer.
+ */
+export function derivedSidecarPath(slug: string): string {
+  return `${derivedPublicationDir(slug)}/pages.json`;
+}
+
+/** Public URL (site-root-relative) for a Publication's sidecar metadata JSON — what DerivedImagePageSource fetches. */
+export function derivedSidecarUrl(slug: string): string {
+  return `/derived/${slug}/pages.json`;
+}

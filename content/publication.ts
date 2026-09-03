@@ -62,6 +62,23 @@ interface PublicationCommon {
 }
 
 /**
+ * A fractional crop applied to a Publication's cover thumbnail only — the
+ * full Page is still what the reader opens; this only affects the cover
+ * art shown on shelves. Added for Thalam, whose source PDF's first page
+ * has dead whitespace around the actual cover art. Fractions are measured
+ * from the top-left corner of the full rendered cover, matching the old
+ * in-house.html canvas-crop behaviour it replaces (which despite its "crop
+ * the right/bottom" comment, kept the top-left widthRatio x heightRatio
+ * region — verified by reading the render code, not just the comment).
+ */
+export interface CoverCrop {
+  /** Fraction (0, 1] of the full cover width to keep, from the left edge. */
+  widthRatio: number;
+  /** Fraction (0, 1] of the full cover height to keep, from the top edge. */
+  heightRatio: number;
+}
+
+/**
  * A Publication whose Pages exist and can be opened in the reader.
  */
 export interface ReadablePublication extends PublicationCommon {
@@ -74,6 +91,13 @@ export interface ReadablePublication extends PublicationCommon {
   pages: PageManifestEntry[];
   /** 1-based page used to derive the cover thumbnail (content/derived-assets.ts derivedCoverUrl). */
   coverPage: number;
+  /**
+   * Optional crop applied when rendering this Publication's cover
+   * thumbnail (not its reader Pages). Absent means use the full cover
+   * page uncropped. See CoverCrop for why this exists as manifest data
+   * instead of a hardcoded render-call argument.
+   */
+  coverCrop?: CoverCrop;
 }
 
 /**
