@@ -15,8 +15,18 @@ const PAGE_COUNT = 24;
 const WIDTH = 800;
 const HEIGHT = 1200;
 
-/** Renders a distinguishable placeholder page (big page number, a colour that shifts per page) so turning/zooming/panning is visually obvious while driving the harness. */
-function renderPageDataUrl(pageNumber: number): string {
+/**
+ * Renders a distinguishable placeholder page (big page number, a colour that
+ * shifts per page) so turning/zooming/panning is visually obvious.
+ *
+ * Returns a BLOB url, deliberately not a `data:` url. PageAsset.candidates feed
+ * an <img srcset>, and srcset splits candidates on commas — a base64 data url
+ * contains one (`data:image/png;base64,...`), so it parses as malformed. An
+ * invalid srcset overrides src, leaving every page at naturalWidth 0, which in
+ * turn starves StPageFlip of the geometry it needs and breaks page turning.
+ * Blob urls carry no comma, so they survive srcset intact.
+ */
+function renderPageObjectUrl(pageNumber: number): string {
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
@@ -39,7 +49,10 @@ function renderPageDataUrl(pageNumber: number): string {
   ctx.font = "28px sans-serif";
   ctx.fillText("reader dev harness", WIDTH / 2, HEIGHT / 2 + 140);
 
-  return canvas.toDataURL("image/png");
+  const binary = atob(canvas.toDataURL("image/png").split(",")[1] ?? "");
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return URL.createObjectURL(new Blob([bytes], { type: "image/png" }));
 }
 
 function buildPages(): Record<number, PageAsset> {
@@ -49,7 +62,7 @@ function buildPages(): Record<number, PageAsset> {
       pageNumber: i,
       intrinsicWidth: WIDTH,
       intrinsicHeight: HEIGHT,
-      candidates: [{ width: WIDTH, url: renderPageDataUrl(i) }],
+      candidates: [{ width: WIDTH, url: renderPageObjectUrl(i) }],
     };
   }
   return pages;

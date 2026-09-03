@@ -44,7 +44,14 @@ export function buildPlaceholders(pageCount: number): HTMLElement[] {
     const img = document.createElement("img");
     img.className = PAGE_IMG_CLASS;
     img.alt = `Page ${pageNumber}`;
-    img.loading = "lazy";
+    // Deliberately NOT loading="lazy". StPageFlip sets display:none on every
+    // Page that is not currently shown, and a lazy image inside a display:none
+    // subtree is never fetched — it can never enter the viewport. That
+    // deadlocks: the engine hides Pages until it needs them, the Pages refuse
+    // to load until shown, so only the Page visible at first paint ever loads
+    // and the engine is left without the geometry it needs to turn.
+    // Laziness here is the prefetch window in loadRange() instead: a Page with
+    // no src costs nothing, and applyAsset() only sets one when it is wanted.
     img.decoding = "async";
     inner.appendChild(img);
 
