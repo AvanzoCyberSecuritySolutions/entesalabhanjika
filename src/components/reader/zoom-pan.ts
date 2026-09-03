@@ -145,7 +145,6 @@ export class ZoomPanController {
   private drag: DragTrack | null = null;
   private pinch: PinchTrack | null = null;
   private lastTap: PendingTap | null = null;
-  private reducedMotion = false;
 
   private readonly deps: ZoomPanDeps;
 
@@ -154,8 +153,16 @@ export class ZoomPanController {
     this.apply();
   }
 
+  /**
+   * Only affects THIS module's own zoom/pan easing — reduced motion
+   * "disabling the curl entirely" (requirement 9) is flip-engine.ts's job
+   * (it constructs StPageFlip with useMouseEvents/showPageCorners off so
+   * the library never draws a curl at all). Zoom/pan is direct-manipulation
+   * gesture feedback, not an autoplaying animation, so it stays available
+   * either way; this only decides whether the *snap-to-Fit* transition
+   * eases or jumps.
+   */
   setReducedMotion(reduced: boolean): void {
-    this.reducedMotion = reduced;
     this.deps.surface.style.transition = reduced ? "none" : "transform 220ms ease-out";
   }
 
@@ -308,10 +315,8 @@ export class ZoomPanController {
       const t0 = e.touches.item(0);
       const t1 = e.touches.item(1);
       if (!t0 || !t1) return;
-      const midpoint = { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
       this.pinch = {
         prevDistance: distance({ x: t0.clientX, y: t0.clientY }, { x: t1.clientX, y: t1.clientY }),
-        prevMidpoint: this.toFocal(midpoint.x, midpoint.y),
         prevZoom: this.zoom,
         prevPan: this.pan,
       };
@@ -344,7 +349,7 @@ export class ZoomPanController {
       this.zoom = targetZoom;
       this.pan = clampPan(rawPan, this.deps.getContentSize(), this.zoom, this.viewportSize());
       this.apply();
-      this.pinch = { prevDistance: currentDistance, prevMidpoint: midpoint, prevZoom: this.zoom, prevPan: this.pan };
+      this.pinch = { prevDistance: currentDistance, prevZoom: this.zoom, prevPan: this.pan };
       e.preventDefault();
       e.stopPropagation();
       return;

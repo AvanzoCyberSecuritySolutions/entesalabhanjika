@@ -1,0 +1,434 @@
+/**
+ * Reader visual layer (src/components/reader/**). Plain CSS, not Tailwind
+ * @apply — this file is pulled in via a plain @import at the top of
+ * tailwind.css (see that file), so it never depends on the PostCSS/
+ * Tailwind pipeline having run over it first. Tailwind utility classes
+ * used directly in reader.ts's markup (e.g. `sr-only`) still work fine
+ * side by side, since tailwind.config.js's content glob covers every .ts
+ * file under src/.
+ *
+ * Palette tokens mirror tailwind.config.js exactly (cream/brown/amber/tan,
+ * plus reader-surround — the one deliberate dark exception, CONTEXT.md-
+ * adjacent rule from the task brief: "THERE IS NO DARK THEME... the ONE
+ * exception... the reader's backdrop behind the book").
+ */
+
+:root {
+  --reader-cream: #fff0d7;
+  --reader-brown: #7b3d00;
+  --reader-amber: #ea9c1e;
+  --reader-tan: #dbc5a1;
+  --reader-surround: #241a12;
+}
+
+/* ---------------------------------------------------------------------
+ * Layout shell
+ * ------------------------------------------------------------------- */
+
+.reader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: var(--reader-brown);
+  font-family: inherit;
+}
+
+.reader-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: var(--reader-brown);
+  background: var(--reader-tan);
+  border-radius: 0.75rem;
+}
+
+.reader-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--reader-tan);
+  border-radius: 0.75rem;
+}
+
+.reader-indicator {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reader-jump {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.reader-jump-label {
+  font-size: 0.85rem;
+}
+
+.reader-jump-input {
+  width: 4.5rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--reader-brown);
+  border-radius: 0.4rem;
+  background: var(--reader-cream);
+  color: var(--reader-brown);
+}
+
+.reader-jump-submit,
+.reader-thumbs-toggle,
+.reader-sound-toggle,
+.reader-thumbnail-close {
+  border: 1px solid var(--reader-brown);
+  background: var(--reader-cream);
+  color: var(--reader-brown);
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+
+.reader-jump-submit:hover,
+.reader-thumbs-toggle:hover,
+.reader-sound-toggle:hover,
+.reader-thumbnail-close:hover {
+  background: var(--reader-amber);
+}
+
+.reader-thumbs-toggle[aria-expanded="true"],
+.reader-sound-toggle[aria-pressed="true"] {
+  background: var(--reader-brown);
+  color: var(--reader-cream);
+}
+
+.reader-topbar-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Real <button> focus states (requirement 4: never invisible-to-keyboard <div> controls). */
+.reader button:focus-visible,
+.reader input:focus-visible {
+  outline: 3px solid var(--reader-amber);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+ * Stage: nav buttons either side of the book viewport
+ * ------------------------------------------------------------------- */
+
+.reader-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reader-nav {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: none;
+  background: color-mix(in srgb, var(--reader-brown) 82%, transparent);
+  color: var(--reader-cream);
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 150ms ease-out, transform 150ms ease-out;
+}
+
+.reader-nav:hover {
+  background: var(--reader-brown);
+  transform: scale(1.05);
+}
+
+.reader-nav:active {
+  transform: scale(0.96);
+}
+
+/* ---------------------------------------------------------------------
+ * Viewport: the dark surround (the one deliberate non-cream area) + the
+ * flip surface StPageFlip mounts into.
+ * ------------------------------------------------------------------- */
+
+.reader-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #33241a 0%, var(--reader-surround) 72%);
+  border-radius: 0.75rem;
+  touch-action: none; /* zoom-pan.ts owns every gesture inside; stop the browser's own pinch/scroll from competing with it */
+  cursor: grab;
+}
+
+.reader-viewport.is-zoomed {
+  cursor: move;
+}
+
+.reader-surface {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.reader-flip-root {
+  position: relative;
+}
+
+/* ---------------------------------------------------------------------
+ * Corner peel hint (requirement 8): breathes once on first load, or on
+ * hover of the top-right corner of the surround — pure decoration, sits
+ * above everything else, never intercepts pointer events.
+ * ------------------------------------------------------------------- */
+
+.reader-viewport::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.55) 51%, rgba(255, 255, 255, 0.15) 65%, transparent 75%);
+  border-radius: 0 0.5rem 0 0.75rem;
+  opacity: 0;
+  transform: translate(6px, -6px) rotate(0deg);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+  z-index: 5;
+}
+
+.reader-viewport:hover::after {
+  opacity: 0.9;
+  transform: translate(0, 0) rotate(-8deg);
+}
+
+.reader-viewport.reader-hint-breathe::after {
+  animation: reader-corner-breathe 2.1s ease-in-out 1;
+}
+
+@keyframes reader-corner-breathe {
+  0% {
+    opacity: 0;
+    transform: translate(6px, -6px) rotate(0deg);
+  }
+  30% {
+    opacity: 0.95;
+    transform: translate(0, 0) rotate(-10deg);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translate(3px, -3px) rotate(-4deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6px, -6px) rotate(0deg);
+  }
+}
+
+/* ---------------------------------------------------------------------
+ * Page-stack thickness (requirement 8): closed-edge stack of page lines
+ * either side of the book, driven per-side by the --reader-stack-fraction
+ * custom property reader.ts sets on every page change (0 = no pages that
+ * side, 1 = the whole Publication that side).
+ * ------------------------------------------------------------------- */
+
+.reader-page-stack {
+  --reader-stack-fraction: 0;
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  width: calc(2px + var(--reader-stack-fraction) * 10px);
+  pointer-events: none;
+  z-index: 1;
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(255, 244, 222, 0.9) 0,
+    rgba(255, 244, 222, 0.9) 1px,
+    rgba(123, 61, 0, 0.35) 1px,
+    rgba(123, 61, 0, 0.35) 2px
+  );
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+  transition: width 180ms ease-out;
+}
+
+.reader-page-stack--left {
+  left: 2px;
+  border-radius: 2px 0 0 2px;
+}
+
+.reader-page-stack--right {
+  right: 2px;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ---------------------------------------------------------------------
+ * Individual Pages. `.reader-page` is the element StPageFlip wraps —
+ * it adds its own `stf__item` + `--hard`/`--soft` + `--left`/`--right`
+ * classes to the SAME element (page-loader.ts), so selectors below key
+ * off both class families.
+ * ------------------------------------------------------------------- */
+
+.reader-page {
+  background: #fdfaf3;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.reader-page-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.reader-page-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #fdfaf3;
+}
+
+/* Paper texture — a tiny tiled noise SVG, kept deliberately faint per the
+   task brief ("overdone texture on a scan reads as dirt"). */
+.reader-page-texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 120px 120px;
+}
+
+/* Spine gutter shading — soft darkening toward the spine edge of each
+   page in a Spread. `--left`/`--right` are set by StPageFlip itself. */
+.reader-page-spine-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.reader-page.--right .reader-page-spine-shade {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.16), transparent 12%);
+}
+
+.reader-page.--left .reader-page-spine-shade {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.16), transparent 12%);
+}
+
+/* Hard covers (requirement 8): stiff board rather than floppy paper. */
+.reader-page.--hard {
+  background: linear-gradient(160deg, #8a4a10, #5c2e08 70%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55), inset 0 0 0 6px rgba(255, 240, 215, 0.06);
+}
+
+.reader-page.--hard .reader-page-texture {
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+}
+
+.reader-page.--hard .reader-page-spine-shade {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.35), transparent 18%);
+}
+
+/* ---------------------------------------------------------------------
+ * StPageFlip base structure fine-tuning. The library injects its own
+ * minimal stylesheet (.stf__parent/.stf__wrapper/.stf__block/.stf__item)
+ * at import time — this only adds what it doesn't set.
+ * ------------------------------------------------------------------- */
+
+.stf__parent {
+  margin: 0 auto;
+}
+
+/* ---------------------------------------------------------------------
+ * Thumbnail strip (requirement 7): dismissible bottom drawer, capped
+ * height so it can never take over a phone screen.
+ * ------------------------------------------------------------------- */
+
+.reader-thumbnail-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 7.5rem;
+  background: var(--reader-tan);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.reader-thumbnail-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.reader-thumbnail-strip {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.reader-thumbnail {
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 4rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 0.3rem;
+  background: var(--reader-cream);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.reader-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reader-thumbnail.is-current {
+  border-color: var(--reader-amber);
+}
+
+/* ---------------------------------------------------------------------
+ * Accessibility
+ * ------------------------------------------------------------------- */
+
+/* prefers-reduced-motion (requirement 9): flip-engine.ts already stops
+   StPageFlip's curl at the source (useMouseEvents/showPageCorners off);
+   this file's own decorative motion (corner-hint breathing, page-stack
+   width easing, zoom-pan's snap-to-Fit transition) is switched off too. */
+@media (prefers-reduced-motion: reduce) {
+  .reader-viewport::after,
+  .reader-page-stack {
+    transition: none !important;
+    animation: none !important;
+  }
+}

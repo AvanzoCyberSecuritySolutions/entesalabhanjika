@@ -13,15 +13,35 @@
  *   - image-scans: content/sources/<sourceRef>/<sourceFile>
  *   - pdf:         content/sources/<sourceRef>
  *
- * Placeholder Publications (editions 2-5) have no PageManifestEntry list —
- * there is nothing to read yet — but each does have an archival cover
- * source at content/sources/placeholders/<slug>-cover.jpg, which
- * scripts/build-assets.ts derives into the `coverImage` URL referenced
- * here (see that script for the naming convention).
+ * Every Publication's `cover` is built the same way regardless of kind —
+ * coverForSlug() below, wrapping content/derived-assets.ts
+ * derivedCoverCandidates(). Placeholder Publications (editions 2-5) have no
+ * PageManifestEntry list — there is nothing to read yet — but each still
+ * has an archival cover source at content/sources/placeholders/<slug>-
+ * cover.jpg, which scripts/build-assets.ts derives at every PAGE_WIDTHS
+ * entry that fits under its measured width (see that script for the
+ * naming convention). Editions 2-5's cover art happens to be narrower
+ * than the widest PAGE_WIDTHS entry, so their `cover` has fewer candidates
+ * than a readable Publication's — see coverForSlug()'s effectiveWidth.
  */
 
-import type { Publication } from "./publication";
-import { derivedCoverUrl } from "./derived-assets";
+import type { Publication, PublicationCover } from "./publication";
+import { derivedCoverCandidates } from "./derived-assets";
+
+/**
+ * `effectiveWidth` is the measured pixel width of the actual cover source
+ * image (post-crop, where a coverCrop applies) — see
+ * PublicationCommon.coverEffectiveWidth for why this can't be computed
+ * here and has to be a recorded fact instead. Measured via `sharp(...).
+ * metadata()` against each Publication's real source/derived page:
+ *   edition-1                2367  (content/sources/edition-1/page-0001.jpg)
+ *   edition-2..5              1414  (content/sources/placeholders/*-cover.jpg)
+ *   natyasasthram, make-up-text-book  2584  (PDF page 1 rasterized @ 150dpi)
+ *   thalam                    1602  (2584 * coverCrop.widthRatio 0.62, rounded)
+ */
+function coverForSlug(slug: string, effectiveWidth: number): PublicationCover {
+  return { candidates: derivedCoverCandidates(slug, effectiveWidth) };
+}
 
 /** 1-based page numbers [1, count], for image-scans Publications whose sourceFile is named by the same zero-padded position (see content/sources/edition-1/). */
 function sequentialImagePages(count: number): { pageNumber: number; sourceFile: string }[] {
@@ -43,6 +63,8 @@ export const publications: Publication[] = [
     kind: "edition",
     collection: "editions",
     issueNumber: 1,
+    cover: coverForSlug("edition-1", 2367),
+    coverEffectiveWidth: 2367,
     placeholder: false,
     pageSourceKind: "image-scans",
     sourceRef: "edition-1",
@@ -60,8 +82,9 @@ export const publications: Publication[] = [
     kind: "edition",
     collection: "editions",
     issueNumber: 2,
+    cover: coverForSlug("edition-2", 1414),
+    coverEffectiveWidth: 1414,
     placeholder: true,
-    coverImage: derivedCoverUrl("edition-2", 960),
   },
   {
     slug: "edition-3",
@@ -69,8 +92,9 @@ export const publications: Publication[] = [
     kind: "edition",
     collection: "editions",
     issueNumber: 3,
+    cover: coverForSlug("edition-3", 1414),
+    coverEffectiveWidth: 1414,
     placeholder: true,
-    coverImage: derivedCoverUrl("edition-3", 960),
   },
   {
     slug: "edition-4",
@@ -78,8 +102,9 @@ export const publications: Publication[] = [
     kind: "edition",
     collection: "editions",
     issueNumber: 4,
+    cover: coverForSlug("edition-4", 1414),
+    coverEffectiveWidth: 1414,
     placeholder: true,
-    coverImage: derivedCoverUrl("edition-4", 960),
   },
   {
     slug: "edition-5",
@@ -87,14 +112,17 @@ export const publications: Publication[] = [
     kind: "edition",
     collection: "editions",
     issueNumber: 5,
+    cover: coverForSlug("edition-5", 1414),
+    coverEffectiveWidth: 1414,
     placeholder: true,
-    coverImage: derivedCoverUrl("edition-5", 960),
   },
   {
     slug: "natyasasthram",
     title: "Natyasasthram",
     kind: "book",
     collection: "in-house-books",
+    cover: coverForSlug("natyasasthram", 2584),
+    coverEffectiveWidth: 2584,
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "natyasasthram.pdf",
@@ -106,6 +134,8 @@ export const publications: Publication[] = [
     title: "Thalam",
     kind: "book",
     collection: "in-house-books",
+    cover: coverForSlug("thalam", 1602),
+    coverEffectiveWidth: 1602,
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "thalam.pdf",
@@ -121,6 +151,8 @@ export const publications: Publication[] = [
     title: "Make-up Text Book",
     kind: "book",
     collection: "in-house-books",
+    cover: coverForSlug("make-up-text-book", 2584),
+    coverEffectiveWidth: 2584,
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "make-up-text-book.pdf",

@@ -13,6 +13,8 @@
  * Node (the build script) and from browser bundles (the reader) alike.
  */
 
+import type { ImageCandidate } from "../src/page-sources/PageSource";
+
 /**
  * Root directory derived assets are written under, relative to the repo
  * root. Deliberately inside Vite's `public/` so the generator can write
@@ -110,6 +112,39 @@ export function derivedThumbnailUrl(slug: string, pageNumber: number): string {
 
 export function derivedCoverUrl(slug: string, width: PageWidth | number): string {
   return `/derived/${slug}/${derivedCoverFilename(width)}`;
+}
+
+/**
+ * Which of PAGE_WIDTHS fit under `intrinsicWidth` without upscaling (ADR
+ * 0002: derived images are never upscaled past their source's intrinsic
+ * width). Falls back to a single candidate at `intrinsicWidth` itself if
+ * even the narrowest PAGE_WIDTHS entry doesn't fit, so callers always get
+ * at least one candidate. The one place this filtering decision is made —
+ * both scripts/build-assets.ts (deciding what to actually encode) and
+ * content/publications.ts (deciding what cover.candidates to advertise)
+ * import this rather than each re-deriving the same filter and risking the
+ * two disagreeing about which widths exist.
+ */
+export function widthsFitting(intrinsicWidth: number): number[] {
+  const fit = PAGE_WIDTHS.filter((w) => w <= intrinsicWidth);
+  return fit.length > 0 ? fit : intrinsicWidth > 0 ? [intrinsicWidth] : [];
+}
+
+/**
+ * The cover `srcset` candidate list for a Publication — content/
+ * publication.ts PublicationCover.candidates for every Publication in
+ * content/publications.ts is built by calling this with the Publication's
+ * own slug and its `coverEffectiveWidth` (see PublicationCommon).
+ * `effectiveWidth` must be the actual pixel width of the image
+ * scripts/build-assets.ts's processCover() encodes from — the *cropped*
+ * width when the Publication has a coverCrop, not the raw source width —
+ * so the candidates this predicts match what the pipeline actually
+ * produces. scripts/build-assets.ts's verifyPageAndHomeBudgets() checks
+ * that every candidate this implies exists on disk and fails the build if
+ * the manifest and the pipeline ever disagree.
+ */
+export function derivedCoverCandidates(slug: string, effectiveWidth: number): ImageCandidate[] {
+  return widthsFitting(effectiveWidth).map((width) => ({ width, url: derivedCoverUrl(slug, width) }));
 }
 
 /**

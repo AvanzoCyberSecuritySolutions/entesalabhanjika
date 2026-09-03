@@ -11,7 +11,7 @@
  * screen on a phone").
  */
 
-import type { PageSource } from "../page-sources/PageSource";
+import type { PageSource } from "../../page-sources/PageSource";
 
 export interface ThumbnailStripOptions {
   pageSource: PageSource;

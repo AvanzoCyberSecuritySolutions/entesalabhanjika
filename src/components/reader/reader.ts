@@ -12,7 +12,7 @@
  *   reader.destroy();
  */
 
-import type { PageSource } from "../page-sources/PageSource";
+import type { PageSource } from "../../page-sources/PageSource";
 import { FlipEngine } from "./flip-engine";
 import { buildPlaceholders, PageLoader } from "./page-loader";
 import { ZoomPanController, type TapZone } from "./zoom-pan";

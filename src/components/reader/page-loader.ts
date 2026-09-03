@@ -15,7 +15,7 @@
  * own docstring describes).
  */
 
-import type { PageAsset, PageSource } from "../page-sources/PageSource";
+import type { PageAsset, PageSource } from "../../page-sources/PageSource";
 
 const PAGE_ITEM_CLASS = "reader-page";
 const PAGE_IMG_CLASS = "reader-page-img";

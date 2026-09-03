@@ -6,7 +6,7 @@
  * they are read."
  */
 
-import type { PageSourceKind } from "../src/page-sources/PageSource";
+import type { ImageCandidate, PageSourceKind } from "../src/page-sources/PageSource";
 
 /**
  * A curated shelf of Publications (CONTEXT.md § Collection). Two exist
@@ -49,6 +49,30 @@ export interface PageManifestEntry {
   sourceFile?: string;
 }
 
+/**
+ * A Publication's cover art, ready for a card renderer to build a real
+ * `srcset` from and let the browser pick. Deliberately shaped like
+ * PageAsset.candidates (src/page-sources/PageSource.ts) — a cover is just
+ * an image with several resolutions, same as a Page, so the two should
+ * share a rendering primitive instead of each inventing their own. Lives
+ * on PublicationCommon (not on ReadablePublication or PlaceholderPublication
+ * individually) so a shelf/carousel component never has to branch on
+ * `placeholder` just to show a cover.
+ *
+ * No intrinsicWidth/intrinsicHeight here (unlike PageAsset): those would
+ * have to come from actually measuring the source image, which is a
+ * build-time fact this static, hand-authored manifest has no honest way to
+ * carry — `cover.candidates` is built from PAGE_WIDTHS alone (see
+ * content/derived-assets.ts derivedCoverCandidates), not from measurement.
+ * scripts/build-assets.ts is responsible for actually producing a file at
+ * every width this implies, for every Publication, and fails the build if
+ * one is missing (see its verifyBudgets pass).
+ */
+export interface PublicationCover {
+  /** Ascending by width; always at least one entry. */
+  candidates: ImageCandidate[];
+}
+
 interface PublicationCommon {
   /** URL-safe unique id, e.g. "edition-1", "natyasasthram". Used as the routing key, and as the folder name under both content/sources/ and the derived-assets contract (content/derived-assets.ts). */
   slug: string;
@@ -59,6 +83,23 @@ interface PublicationCommon {
   issueNumber?: number;
   /** Book-only: subject or author line shown under the title (CONTEXT.md § Book). Required when kind === "book". */
   subject?: string;
+  /** This Publication's cover art. See PublicationCover for why this is uniform across readable and placeholder Publications. */
+  cover: PublicationCover;
+  /**
+   * Measured pixel width of the actual image scripts/build-assets.ts
+   * encodes this Publication's cover from — the width AFTER cropping, for
+   * a Publication with coverCrop, since that's what the pipeline really
+   * resizes down from. content/publications.ts uses this (via
+   * content/derived-assets.ts derivedCoverCandidates) to compute `cover`
+   * without upscaling past what the source can actually support — e.g.
+   * editions 2-5's placeholder cover art is a 1414px-wide scan, narrower
+   * than PAGE_WIDTHS' 1600 entry, so their cover has only two candidates,
+   * not three. A hand-recorded fact (like `pages`' page counts elsewhere
+   * in this file), not something computed at manifest-authoring time —
+   * kept honest by scripts/build-assets.ts failing the build if a
+   * candidate this implies doesn't exist on disk.
+   */
+  coverEffectiveWidth: number;
 }
 
 /**
@@ -110,8 +151,6 @@ export interface ReadablePublication extends PublicationCommon {
  */
 export interface PlaceholderPublication extends PublicationCommon {
   placeholder: true;
-  /** Static "coming soon" artwork, site-root-relative — there is no scan/PDF source yet to derive a cover from. */
-  coverImage: string;
 }
 
 export type Publication = ReadablePublication | PlaceholderPublication;

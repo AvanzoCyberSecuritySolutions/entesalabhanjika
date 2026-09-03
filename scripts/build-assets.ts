@@ -47,12 +47,15 @@ import {
   PAGE_WIDTHS,
   THUMBNAIL_WIDTH,
   BYTES_PER_DERIVED_IMAGE,
+  BYTES_PER_HOME_PAGE,
+  BYTES_PER_READER_PAGE,
   derivedPublicationDir,
   derivedPagesDir,
   derivedPagePath,
   derivedThumbnailPath,
   derivedCoverPath,
   derivedSidecarPath,
+  widthsFitting,
   type DerivedPageMetadata,
   type DerivedPublicationSidecar,
 } from "../content/derived-assets.js";
@@ -152,18 +155,6 @@ async function reuseExisting(outRelPath: string): Promise<void> {
   recordOutput(outRelPath, bytes, false);
 }
 
-/**
- * Which of PAGE_WIDTHS fit under `intrinsicWidth` without upscaling. If the
- * source is smaller than even the narrowest PAGE_WIDTHS entry (unexpected
- * for our real content, all of which is well over 1600px, but guarded
- * anyway) falls back to a single candidate at the source's own width so a
- * PageAsset always has at least one candidate.
- */
-function widthsFor(intrinsicWidth: number): number[] {
-  const fit = PAGE_WIDTHS.filter((w) => w <= intrinsicWidth);
-  return fit.length > 0 ? fit : intrinsicWidth > 0 ? [intrinsicWidth] : [];
-}
-
 /** Renders every page of a PDF to JPEG in a fresh temp directory via poppler's pdftoppm, returns paths sorted by page number ascending. */
 async function rasterizePdf(pdfAbsPath: string): Promise<string[]> {
   const dir = await mkdtemp(join(tmpdir(), "build-assets-pdf-"));
@@ -222,7 +213,7 @@ async function processImageScanPage(
   const meta = await sharp(sourceAbsPath).metadata();
   const intrinsicWidth = meta.width ?? 0;
   const intrinsicHeight = meta.height ?? 0;
-  const widths = widthsFor(intrinsicWidth);
+  const widths = widthsFitting(intrinsicWidth);
 
   for (const w of widths) {
     await encodeWebp(sourceAbsPath, derivedPagePath(slug, pageNumber, w), w);
@@ -243,7 +234,7 @@ async function processRasterizedPage(
   const meta = await sharp(rasterAbsPath).metadata();
   const intrinsicWidth = meta.width ?? 0;
   const intrinsicHeight = meta.height ?? 0;
-  const widths = widthsFor(intrinsicWidth);
+  const widths = widthsFitting(intrinsicWidth);
 
   for (const w of widths) {
     await encodeWebp(rasterAbsPath, derivedPagePath(slug, pageNumber, w), w);
@@ -272,7 +263,7 @@ async function processCover(slug: string, sourceAbsPath: string, coverCrop: Cove
 
   const crop = coverCrop ? cropRectFor(coverCrop, fullWidth, fullHeight) : undefined;
   const effectiveWidth = crop ? crop.width : fullWidth;
-  const widths = widthsFor(effectiveWidth);
+  const widths = widthsFitting(effectiveWidth);
 
   for (const w of widths) {
     const outRel = derivedCoverPath(slug, w);
@@ -302,13 +293,13 @@ async function processPlaceholderCover(pub: PlaceholderPublication): Promise<voi
     );
   }
 
-  const sourceMs = await mtimeMs(sourceAbsPath);
-  const outRel = derivedCoverPath(pub.slug, 960);
-  if (await isFresh(absDerived(outRel), sourceMs)) {
-    await reuseExisting(outRel);
-  } else {
-    await encodeWebp(sourceAbsPath, outRel, 960);
-  }
+  // Same helper a readable Publication's cover goes through — a
+  // PlaceholderPublication's cover must be exactly as responsive
+  // (all of PAGE_WIDTHS, never upscaled past intrinsic width) as a
+  // readable one's, because content/publications.ts builds both kinds'
+  // `cover.candidates` the same way (derivedCoverCandidates(slug)), and
+  // that promise has to actually hold on disk.
+  await processCover(pub.slug, sourceAbsPath, undefined);
 }
 
 async function processReadablePublication(pub: ReadablePublication): Promise<void> {
@@ -416,6 +407,116 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
   await writeFile(absDerived(derivedSidecarPath(pub.slug)), JSON.stringify(sidecar, null, 2));
 }
 
+async function coverFileSize(slug: string, width: number): Promise<number | null> {
+  const p = absDerived(derivedCoverPath(slug, width));
+  if (!(await exists(p))) return null;
+  return (await stat(p)).size;
+}
+
+/**
+ * Page-level budgets (ADR 0002: BYTES_PER_HOME_PAGE, BYTES_PER_READER_PAGE)
+ * — checking individual file sizes (BYTES_PER_DERIVED_IMAGE, enforced in
+ * encodeWebp/main) is not the same guarantee: five individually-in-budget
+ * cover images can still blow the home page's *total* budget if the page
+ * has no smaller candidate to pick, which is exactly what happened before
+ * this function existed (placeholder covers only ever got a 960w
+ * candidate). Returns a list of human-readable problem strings; empty
+ * means everything is within budget. Also verifies, for every Publication,
+ * that every cover width content/publications.ts's `cover.candidates`
+ * implies (i.e. every PAGE_WIDTHS entry) actually exists on disk — a
+ * manifest promising a candidate the pipeline didn't produce is a build
+ * bug, not a budget one, but it's cheapest to catch here since this
+ * function already walks every cover file.
+ */
+async function verifyPageAndHomeBudgets(): Promise<string[]> {
+  const problems: string[] = [];
+
+  for (const pub of publications) {
+    // Check exactly the widths the manifest actually advertises
+    // (pub.cover.candidates), not every PAGE_WIDTHS entry — a Publication
+    // whose cover source is narrower than 1600px (editions 2-5) correctly
+    // has fewer candidates by design (see coverEffectiveWidth), so that is
+    // not itself a problem; a candidate the manifest promises but the
+    // pipeline didn't produce is.
+    for (const candidate of pub.cover.candidates) {
+      if ((await coverFileSize(pub.slug, candidate.width)) === null) {
+        problems.push(
+          `Publication "${pub.slug}": content/publications.ts cover.candidates promises a ${candidate.width}w cover, but ${derivedCoverPath(pub.slug, candidate.width)} does not exist.`
+        );
+      }
+    }
+  }
+
+  // Home page: the Editions carousel shows one cover per "editions"
+  // Publication. An <img srcset> picks the smallest candidate that
+  // satisfies its layout, so the realistic worst case is the smallest
+  // width actually available for each cover shown.
+  const editionSlugs = publications.filter((p) => p.collection === "editions").map((p) => p.slug);
+  let homeTotal = 0;
+  const homeBreakdown: { slug: string; bytes: number }[] = [];
+  for (const slug of editionSlugs) {
+    let smallest: number | null = null;
+    for (const w of PAGE_WIDTHS) {
+      const size = await coverFileSize(slug, w);
+      if (size !== null) {
+        smallest = size;
+        break;
+      }
+    }
+    if (smallest === null) {
+      problems.push(`Publication "${slug}": no cover candidate found at any width — cannot evaluate the home-page budget.`);
+      continue;
+    }
+    homeTotal += smallest;
+    homeBreakdown.push({ slug, bytes: smallest });
+  }
+  console.log("");
+  console.log(
+    `[build-assets] home page (editions carousel, smallest cover candidate each): ${homeTotal.toLocaleString()} bytes vs BYTES_PER_HOME_PAGE ${BYTES_PER_HOME_PAGE.toLocaleString()}`
+  );
+  for (const b of [...homeBreakdown].sort((a, b) => b.bytes - a.bytes)) {
+    console.log(`  ${b.slug}: ${b.bytes.toLocaleString()} bytes`);
+  }
+  if (homeTotal > BYTES_PER_HOME_PAGE) {
+    problems.push(
+      `Home page budget exceeded: ${homeTotal.toLocaleString()} bytes across ${homeBreakdown.length} Edition cover(s) vs BYTES_PER_HOME_PAGE (${BYTES_PER_HOME_PAGE.toLocaleString()} bytes). Breakdown: ${homeBreakdown
+        .map((b) => `${b.slug}=${b.bytes.toLocaleString()}`)
+        .join(", ")}`
+    );
+  }
+
+  // Reader page: the worst-case Spread is the two most expensive Pages of
+  // a Publication shown side by side, both at the largest width that
+  // Publication actually produced.
+  for (const pub of publications) {
+    if (pub.placeholder) continue;
+    const sidecar = await loadPreviousSidecar(pub.slug);
+    if (!sidecar || sidecar.pages.length === 0) {
+      problems.push(`Publication "${pub.slug}": no derived page metadata found — cannot evaluate the reader-page budget.`);
+      continue;
+    }
+    const maxWidth = Math.max(...sidecar.pages.flatMap((p) => p.widths));
+    const sizes: number[] = [];
+    for (const p of sidecar.pages) {
+      if (!p.widths.includes(maxWidth)) continue;
+      const fp = absDerived(derivedPagePath(pub.slug, p.pageNumber, maxWidth));
+      if (await exists(fp)) sizes.push((await stat(fp)).size);
+    }
+    sizes.sort((a, b) => b - a);
+    const worstSpread = (sizes[0] ?? 0) + (sizes[1] ?? 0);
+    console.log(
+      `[build-assets] ${pub.slug}: worst-case reader Spread (2 pages @ ${maxWidth}w) = ${worstSpread.toLocaleString()} bytes vs BYTES_PER_READER_PAGE ${BYTES_PER_READER_PAGE.toLocaleString()}`
+    );
+    if (worstSpread > BYTES_PER_READER_PAGE) {
+      problems.push(
+        `Reader page budget exceeded for "${pub.slug}": worst-case Spread ${worstSpread.toLocaleString()} bytes (2 pages @ ${maxWidth}w) vs BYTES_PER_READER_PAGE (${BYTES_PER_READER_PAGE.toLocaleString()} bytes).`
+      );
+    }
+  }
+
+  return problems;
+}
+
 async function main(): Promise<void> {
   const startedAt = Date.now();
   console.log(`[build-assets] ${publications.length} publication(s) in the manifest.`);
@@ -456,15 +557,25 @@ async function main(): Promise<void> {
   console.log(`[build-assets] elapsed: ${(elapsedMs / 1000).toFixed(1)}s`);
   console.log(`[build-assets] budget: ${BYTES_PER_DERIVED_IMAGE.toLocaleString()} bytes/image`);
 
+  const problems: string[] = [];
   if (stats.offenders.length > 0) {
-    console.error("");
-    console.error(`[build-assets] BUDGET EXCEEDED on ${stats.offenders.length} file(s):`);
-    for (const o of stats.offenders.sort((a, b) => b.bytes - a.bytes)) {
-      console.error(`  ${o.path} — ${o.bytes.toLocaleString()} bytes`);
-    }
-    throw new Error(
-      `[build-assets] ${stats.offenders.length} derived image(s) exceed BYTES_PER_DERIVED_IMAGE (${BYTES_PER_DERIVED_IMAGE} bytes). See list above.`
+    problems.push(
+      `${stats.offenders.length} derived image(s) exceed BYTES_PER_DERIVED_IMAGE (${BYTES_PER_DERIVED_IMAGE.toLocaleString()} bytes):`
     );
+    for (const o of stats.offenders.sort((a, b) => b.bytes - a.bytes)) {
+      problems.push(`  ${o.path} — ${o.bytes.toLocaleString()} bytes`);
+    }
+  }
+
+  // Page-level budgets (home page total, reader Spread total) — a
+  // per-image pass alone can't catch these; see verifyPageAndHomeBudgets.
+  problems.push(...(await verifyPageAndHomeBudgets()));
+
+  if (problems.length > 0) {
+    console.error("");
+    console.error(`[build-assets] BUDGET FAILURES:`);
+    for (const p of problems) console.error(`  ${p}`);
+    throw new Error(`[build-assets] budget check failed — ${problems.length} problem(s). See list above.`);
   }
 }
 

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reader dev harness</title>
+    <link rel="stylesheet" href="../../../styles/tailwind.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: #fff0d7;
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+      }
+      #reader-root {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 1rem;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Scratch harness (not part of the production build — see
+      vite.config.ts's resolveEntries, which never lists this file).
+      Mounts the reader against FakePageSource so it can be exercised
+      without the asset pipeline or a real Publication. See harness.ts.
+    -->
+    <div id="reader-root" aria-busy="true">Loading reader…</div>
+    <script type="module" src="./harness.ts"></script>
+  </body>
+</html>
