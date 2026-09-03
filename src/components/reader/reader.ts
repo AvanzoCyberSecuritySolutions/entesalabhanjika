@@ -19,6 +19,7 @@ import { ZoomPanController, type TapZone } from "./zoom-pan";
 import { ThumbnailStrip } from "./thumbnails";
 import { SoundController } from "./sound";
 import { getResumePage, setResumePage } from "./progress";
+import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT, ICON_PAGES, ICON_CHECK } from "./icons";
 
 export interface ReaderOptions {
   /** Reader takes ownership of this element's contents; nothing else should render into it. */
@@ -59,8 +60,7 @@ export class Reader {
   private viewportEl!: HTMLElement;
   private surfaceEl!: HTMLElement;
   private flipRootEl!: HTMLElement;
-  private stackLeftEl!: HTMLElement;
-  private stackRightEl!: HTMLElement;
+  private toolbarEl!: HTMLElement;
   private indicatorEl!: HTMLElement;
   private statusEl!: HTMLElement;
   private jumpInputEl!: HTMLInputElement;
@@ -113,7 +113,9 @@ export class Reader {
         this.goToPage(pageNumber);
       },
     });
-    this.root.appendChild(this.thumbnails.element);
+    // Inserted just above the toolbar, so the Pages drawer opens directly
+    // over the bottom bar it belongs to, not after it at the very end.
+    this.root.insertBefore(this.thumbnails.element, this.toolbarEl);
 
     this.wireControls();
     this.observeResize();
@@ -153,29 +155,26 @@ export class Reader {
     const jumpInputId = nextId("reader-jump-input");
 
     this.root.innerHTML = `
-      <div class="reader-topbar">
+      <div class="reader-stage">
+        <button class="reader-nav reader-nav--prev" type="button" aria-label="Previous page">${ICON_CHEVRON_LEFT}</button>
+        <div class="reader-viewport" role="region" aria-roledescription="book" aria-label="${escapeHtml(this.opts.publicationTitle)} — page reader">
+          <img src="/images/img1.webp" alt="" aria-hidden="true" class="reader-decor reader-decor--tl" />
+          <img src="/images/img1.webp" alt="" aria-hidden="true" class="reader-decor reader-decor--br" />
+          <div class="reader-surface">
+            <div class="reader-flip-root"></div>
+          </div>
+          <div class="reader-end-note" aria-hidden="true">${ICON_CHECK}<span>End of book</span></div>
+        </div>
+        <button class="reader-nav reader-nav--next" type="button" aria-label="Next page">${ICON_CHEVRON_RIGHT}</button>
+      </div>
+      <div class="reader-toolbar">
         <div class="reader-indicator" aria-hidden="true"></div>
         <form class="reader-jump" aria-label="Jump to page">
           <label class="reader-jump-label" for="${jumpInputId}">Go to page</label>
           <input class="reader-jump-input" id="${jumpInputId}" type="number" min="1" max="${pageCount}" step="1" inputmode="numeric" />
           <button class="reader-jump-submit" type="submit">Go</button>
         </form>
-        <div class="reader-topbar-actions"></div>
-      </div>
-      <div class="reader-stage">
-        <button class="reader-nav reader-nav--prev" type="button" aria-label="Previous page">
-          <span aria-hidden="true">&#8249;</span>
-        </button>
-        <div class="reader-viewport" role="region" aria-roledescription="book" aria-label="${escapeHtml(this.opts.publicationTitle)} — page reader">
-          <div class="reader-page-stack reader-page-stack--left" aria-hidden="true"></div>
-          <div class="reader-surface">
-            <div class="reader-flip-root"></div>
-          </div>
-          <div class="reader-page-stack reader-page-stack--right" aria-hidden="true"></div>
-        </div>
-        <button class="reader-nav reader-nav--next" type="button" aria-label="Next page">
-          <span aria-hidden="true">&#8250;</span>
-        </button>
+        <div class="reader-toolbar-actions"></div>
       </div>
       <p class="reader-status sr-only" aria-live="polite"></p>
     `;
@@ -183,8 +182,7 @@ export class Reader {
     this.viewportEl = this.query(".reader-viewport");
     this.surfaceEl = this.query(".reader-surface");
     this.flipRootEl = this.query(".reader-flip-root");
-    this.stackLeftEl = this.query(".reader-page-stack--left");
-    this.stackRightEl = this.query(".reader-page-stack--right");
+    this.toolbarEl = this.query(".reader-toolbar");
     this.indicatorEl = this.query(".reader-indicator");
     this.statusEl = this.query(".reader-status");
     this.jumpInputEl = this.query<HTMLInputElement>(".reader-jump-input");
@@ -235,14 +233,14 @@ export class Reader {
       this.jumpInputEl.blur();
     });
 
-    const actions = this.query(".reader-topbar-actions");
+    const actions = this.query(".reader-toolbar-actions");
     actions.appendChild(this.sound.toggleButton);
 
     this.thumbsToggleEl = document.createElement("button");
     this.thumbsToggleEl.type = "button";
     this.thumbsToggleEl.className = "reader-thumbs-toggle";
     this.thumbsToggleEl.setAttribute("aria-expanded", "false");
-    this.thumbsToggleEl.textContent = "Pages";
+    this.thumbsToggleEl.innerHTML = `${ICON_PAGES}<span>Pages</span>`;
     this.thumbsToggleEl.addEventListener("click", () => {
       const next = !(this.thumbnails?.isOpen ?? false);
       this.thumbnails?.toggle(next);
@@ -296,13 +294,16 @@ export class Reader {
     this.jumpInputEl.placeholder = String(pageNumber);
     this.thumbnails?.setCurrentPage(pageNumber);
 
-    // Page-stack thickness (requirement 8): the closed-edge stack on the
-    // left visibly thickens with pages already read, the right thins with
-    // pages remaining — driven by a single 0..1 CSS custom property per
-    // side so reader.css owns the actual gradient rendering.
-    const read = pageCount > 1 ? (pageNumber - 1) / (pageCount - 1) : 0;
-    this.stackLeftEl.style.setProperty("--reader-stack-fraction", String(read));
-    this.stackRightEl.style.setProperty("--reader-stack-fraction", String(1 - read));
+    // Requirement: the book has no synthetic last-cover page, so "the end"
+    // is signalled by chrome state instead — disable Next and show a note
+    // once the last Page (or, in a Spread, the last Spread) is on screen.
+    const spreadMargin = (this.engine?.isSpread ?? false) ? 1 : 0;
+    const atEnd = pageNumber >= pageCount - spreadMargin;
+    const nextBtn = this.query<HTMLButtonElement>(".reader-nav--next");
+    nextBtn.disabled = atEnd;
+    nextBtn.setAttribute("aria-label", atEnd ? "You've reached the end of the book" : "Next page");
+    this.viewportEl.classList.toggle("is-at-end", atEnd);
+    if (atEnd) this.statusEl.textContent = `Page ${pageNumber} of ${pageCount} — end of book`;
 
     const margin = (this.engine?.isSpread ?? false) ? PREFETCH_MARGIN + 1 : PREFETCH_MARGIN;
     const wanted: number[] = [];

@@ -6,9 +6,9 @@
  * names (bg-cream, text-brown, ...) instead of the arbitrary hex literals
  * (`bg-[#FFF0D7]`) the legacy pages use, so the palette lives in one place.
  *
- * `reader-surround` is the one deliberate exception to "no dark theme
- * anywhere": the warm deep neutral the reader's backdrop uses around an
- * open book, everywhere else on the site stays on the light palette above.
+ * No dark exception: the reader's backdrop around an open book used to be
+ * a deliberate dark neutral (`reader-surround`, #241a12) — removed, the
+ * reader now stays on the same light palette as the rest of the site.
  *
  * @type {import('tailwindcss').Config}
  */
@@ -21,7 +21,6 @@ export default {
         brown: "#7B3D00",
         amber: "#EA9C1E",
         tan: "#DBC5A1",
-        "reader-surround": "#241a12",
       },
     },
   },

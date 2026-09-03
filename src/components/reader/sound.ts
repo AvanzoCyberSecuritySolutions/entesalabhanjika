@@ -15,6 +15,7 @@
  */
 
 import { getSoundEnabled, setSoundEnabled } from "./progress";
+import { ICON_SOUND_OFF, ICON_SOUND_ON } from "./icons";
 
 const DURATION_SECONDS = 0.22;
 
@@ -37,7 +38,9 @@ export class SoundController {
 
   private reflectState(): void {
     this.toggleButton.setAttribute("aria-pressed", String(this.enabled));
-    this.toggleButton.textContent = this.enabled ? "🔊 Sound on" : "🔇 Sound off";
+    const icon = this.enabled ? ICON_SOUND_ON : ICON_SOUND_OFF;
+    const label = this.enabled ? "Sound on" : "Sound off";
+    this.toggleButton.innerHTML = `${icon}<span>${label}</span>`;
   }
 
   toggle(): void {

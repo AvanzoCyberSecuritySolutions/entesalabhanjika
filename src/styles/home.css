@@ -1,0 +1,70 @@
+/* Home page: the Editions carousel. A horizontal scroll-snap strip of
+   blob-masked slides that scale up and light up as they cross centre,
+   via native CSS scroll-driven animations (see home-entry.ts for the
+   fallback on browsers without animation-timeline: view() support). */
+
+:root {
+  --slide-size: clamp(200px, min(55vw, 40dvh), 500px);
+}
+
+.scroller {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 0;
+  padding: 0 calc(50vw - var(--slide-size) / 2);
+  scrollbar-width: none;
+}
+.scroller::-webkit-scrollbar { display: none; }
+
+.vector-slide {
+  container-type: inline-size;
+  flex: 0 0 var(--slide-size);
+  scroll-snap-align: center;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  animation: slide-scale auto linear both;
+  animation-timeline: --slide-timeline;
+  view-timeline: --slide-timeline inline;
+}
+
+div.vector-slide { cursor: default; }
+
+.vector-slide .overlay {
+  animation: slide-overlay auto linear both;
+  animation-timeline: --slide-timeline;
+}
+
+.vector-slide .edition-text {
+  animation: slide-text auto linear both;
+  animation-timeline: --slide-timeline;
+}
+
+.vector-slide:focus-visible {
+  outline: 3px solid #ea9c1e;
+  outline-offset: 6px;
+}
+
+@keyframes slide-scale {
+  0% { transform: scale(0.85); }
+  50% { transform: scale(1); }
+  100% { transform: scale(0.85); }
+}
+
+@keyframes slide-overlay {
+  0%, 100% { background-color: transparent; }
+  20%, 80% { background-color: rgb(163 138 99 / 0.6); }
+  50% { background-color: rgb(234 156 30 / 0.35); }
+}
+
+@keyframes slide-text {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 0.5; }
+  50% { opacity: 1; }
+}

@@ -7,10 +7,10 @@
  * side by side, since tailwind.config.js's content glob covers every .ts
  * file under src/.
  *
- * Palette tokens mirror tailwind.config.js exactly (cream/brown/amber/tan,
- * plus reader-surround — the one deliberate dark exception, CONTEXT.md-
- * adjacent rule from the task brief: "THERE IS NO DARK THEME... the ONE
- * exception... the reader's backdrop behind the book").
+ * Palette tokens mirror tailwind.config.js exactly (cream/brown/amber/tan).
+ * No dark exception: the reader's backdrop used to be a deliberate dark
+ * neutral behind the book; it is now the same light palette as everywhere
+ * else on the site.
  */
 
 :root {
@@ -18,7 +18,7 @@
   --reader-brown: #7b3d00;
   --reader-amber: #ea9c1e;
   --reader-tan: #dbc5a1;
-  --reader-surround: #241a12;
+  --reader-surround: #f3e2c2;
 }
 
 /* ---------------------------------------------------------------------
@@ -46,7 +46,7 @@
   border-radius: 0.75rem;
 }
 
-.reader-topbar {
+.reader-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -86,6 +86,9 @@
 .reader-thumbs-toggle,
 .reader-sound-toggle,
 .reader-thumbnail-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid var(--reader-brown);
   background: var(--reader-cream);
   color: var(--reader-brown);
@@ -95,6 +98,8 @@
   cursor: pointer;
   transition: background-color 120ms ease-out, color 120ms ease-out;
 }
+
+.reader-icon { flex: 0 0 auto; display: block; }
 
 .reader-jump-submit:hover,
 .reader-thumbs-toggle:hover,
@@ -109,7 +114,7 @@
   color: var(--reader-cream);
 }
 
-.reader-topbar-actions {
+.reader-toolbar-actions {
   display: flex;
   gap: 0.4rem;
 }
@@ -139,20 +144,27 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  border: none;
-  background: color-mix(in srgb, var(--reader-brown) 82%, transparent);
-  color: var(--reader-cream);
+  border: 1px solid color-mix(in srgb, var(--reader-brown) 18%, transparent);
+  background: color-mix(in srgb, var(--reader-cream) 20%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: color-mix(in srgb, var(--reader-brown) 45%, transparent);
   font-size: 1.5rem;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 150ms ease-out, transform 150ms ease-out;
+  transition: background-color 150ms ease-out, color 150ms ease-out, transform 150ms ease-out, opacity 150ms ease-out;
 }
 
+/* Deliberately understated (task brief: "not want that bright colour...
+   should not catch [the eye]. so user should cat[ch] the book as first") —
+   full contrast only shows up on hover/focus, once a visitor goes looking. */
 .reader-nav:hover {
-  background: var(--reader-brown);
+  background: color-mix(in srgb, var(--reader-cream) 60%, transparent);
+  color: var(--reader-brown);
+  border-color: color-mix(in srgb, var(--reader-brown) 35%, transparent);
   transform: scale(1.05);
 }
 
@@ -160,9 +172,16 @@
   transform: scale(0.96);
 }
 
+.reader-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
 /* ---------------------------------------------------------------------
- * Viewport: the dark surround (the one deliberate non-cream area) + the
- * flip surface StPageFlip mounts into.
+ * Viewport: the surround behind the open book (a warm tan, not the page's
+ * own cream, so the book's edges stay readable against it) + the flip
+ * surface StPageFlip mounts into.
  * ------------------------------------------------------------------- */
 
 .reader-viewport {
@@ -172,7 +191,7 @@
   min-height: 0;
   height: 100%;
   overflow: hidden;
-  background: radial-gradient(ellipse at center, #33241a 0%, var(--reader-surround) 72%);
+  background: radial-gradient(ellipse at center, var(--reader-surround) 0%, var(--reader-tan) 100%);
   border-radius: 0.75rem;
   touch-action: none; /* zoom-pan.ts owns every gesture inside; stop the browser's own pinch/scroll from competing with it */
   cursor: grab;
@@ -197,6 +216,64 @@
 }
 
 /* ---------------------------------------------------------------------
+ * Backdrop art: the same dancer illustration used elsewhere on the site,
+ * faint and corner-placed, clipped by the viewport's own overflow:hidden.
+ * Sits behind .reader-surface in source order (both z-index:auto, so DOM
+ * order decides stacking) — the book's own opaque page background always
+ * paints over it, so it only ever shows in the surround, never on a page.
+ * ------------------------------------------------------------------- */
+
+.reader-decor {
+  position: absolute;
+  width: 42%;
+  max-width: 320px;
+  opacity: 0.09;
+  pointer-events: none;
+}
+
+.reader-decor--tl {
+  top: -8%;
+  left: -6%;
+}
+
+.reader-decor--br {
+  bottom: -8%;
+  right: -6%;
+  transform: scaleX(-1);
+}
+
+/* ---------------------------------------------------------------------
+ * End-of-book note: the book has no synthetic last-cover page (task
+ * brief), so reaching the end is signalled by this chip instead, shown
+ * once reader.ts's updatePageChrome() marks the viewport .is-at-end.
+ * ------------------------------------------------------------------- */
+
+.reader-end-note {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: color-mix(in srgb, var(--reader-brown) 88%, transparent);
+  color: var(--reader-cream);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 8px);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.reader-viewport.is-at-end .reader-end-note {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------------------------------------------------------------------
  * Corner peel hint (requirement 8): breathes once on first load, or on
  * hover of the top-right corner of the surround — pure decoration, sits
  * above everything else, never intercepts pointer events.
@@ -210,7 +287,7 @@
   width: 2.25rem;
   height: 2.25rem;
   pointer-events: none;
-  background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.55) 51%, rgba(255, 255, 255, 0.15) 65%, transparent 75%);
+  background: linear-gradient(135deg, transparent 50%, rgba(123, 61, 0, 0.4) 51%, rgba(123, 61, 0, 0.12) 65%, transparent 75%);
   border-radius: 0 0.5rem 0 0.75rem;
   opacity: 0;
   transform: translate(6px, -6px) rotate(0deg);
@@ -244,42 +321,6 @@
     opacity: 0;
     transform: translate(6px, -6px) rotate(0deg);
   }
-}
-
-/* ---------------------------------------------------------------------
- * Page-stack thickness (requirement 8): closed-edge stack of page lines
- * either side of the book, driven per-side by the --reader-stack-fraction
- * custom property reader.ts sets on every page change (0 = no pages that
- * side, 1 = the whole Publication that side).
- * ------------------------------------------------------------------- */
-
-.reader-page-stack {
-  --reader-stack-fraction: 0;
-  position: absolute;
-  top: 8%;
-  bottom: 8%;
-  width: calc(2px + var(--reader-stack-fraction) * 10px);
-  pointer-events: none;
-  z-index: 1;
-  background-image: repeating-linear-gradient(
-    to right,
-    rgba(255, 244, 222, 0.9) 0,
-    rgba(255, 244, 222, 0.9) 1px,
-    rgba(123, 61, 0, 0.35) 1px,
-    rgba(123, 61, 0, 0.35) 2px
-  );
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
-  transition: width 180ms ease-out;
-}
-
-.reader-page-stack--left {
-  left: 2px;
-  border-radius: 2px 0 0 2px;
-}
-
-.reader-page-stack--right {
-  right: 2px;
-  border-radius: 0 2px 2px 0;
 }
 
 /* ---------------------------------------------------------------------
@@ -423,12 +464,14 @@
 
 /* prefers-reduced-motion (requirement 9): flip-engine.ts already stops
    StPageFlip's curl at the source (useMouseEvents/showPageCorners off);
-   this file's own decorative motion (corner-hint breathing, page-stack
-   width easing, zoom-pan's snap-to-Fit transition) is switched off too. */
+   this file's own decorative motion (corner-hint breathing, zoom-pan's
+   snap-to-Fit transition) is switched off too. */
 @media (prefers-reduced-motion: reduce) {
-  .reader-viewport::after,
-  .reader-page-stack {
+  .reader-viewport::after {
     transition: none !important;
     animation: none !important;
+  }
+  .reader-end-note {
+    transition: none !important;
   }
 }

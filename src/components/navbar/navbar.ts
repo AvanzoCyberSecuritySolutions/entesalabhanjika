@@ -41,7 +41,7 @@ export class SiteNavbar extends HTMLElement {
     this.innerHTML = `
       <nav class="site-nav" aria-label="Primary">
         <a class="site-nav-logo" href="/">
-          <img src="/images/entelogo-removebg-preview.png" alt="${"Ente Salabhanjika"} home" width="100" height="100" />
+          <img src="/images/logo.webp" alt="${"Ente Salabhanjika"} home" width="100" height="100" />
         </a>
         <ul class="site-nav-links">${linkMarkup("site-nav-link")}</ul>
         <button type="button" class="site-nav-toggle" aria-expanded="false" aria-label="Open menu">

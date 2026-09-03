@@ -12,6 +12,7 @@
  */
 
 import type { PageSource } from "../../page-sources/PageSource";
+import { ICON_CLOSE } from "./icons";
 
 export interface ThumbnailStripOptions {
   pageSource: PageSource;
@@ -43,7 +44,7 @@ export class ThumbnailStrip {
     closeBtn.type = "button";
     closeBtn.className = "reader-thumbnail-close";
     closeBtn.setAttribute("aria-label", "Close page thumbnails");
-    closeBtn.textContent = "✕";
+    closeBtn.innerHTML = ICON_CLOSE;
     closeBtn.addEventListener("click", () => this.toggle(false));
     header.append(heading, closeBtn);
 
