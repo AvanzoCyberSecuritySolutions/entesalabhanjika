@@ -11,3 +11,6 @@ public/derived/
 
 # Local dev-server launch config (editor/tooling specific)
 .claude/
+
+# Generated reader pages (scripts/build-pages.ts, from the Publication manifest).
+src/pages/reader/

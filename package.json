@@ -4,11 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run build:pages && vite",
     "build:assets": "tsx scripts/build-assets.ts",
-    "build": "npm run build:assets && vite build",
+    "build": "npm run build:assets && npm run build:pages && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:pages": "tsx scripts/build-pages.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
