@@ -68,12 +68,11 @@ export const publications: Publication[] = [
     placeholder: false,
     pageSourceKind: "image-scans",
     sourceRef: "edition-1",
-    // 35 scans, images-0..images-34 each exactly once, cover = images-0
-    // (page 1). The legacy edition1.html listed images-6 twice (36 <img>
-    // tags for 35 files), shifting every spread after page 7 — verified by
-    // counting content/sources/edition-1/ (35 files) against the old HTML
-    // before writing this list; not reproduced here.
-    pages: sequentialImagePages(35),
+    // 35 scans + 1 back cover.
+    pages: [
+      ...sequentialImagePages(35),
+      { pageNumber: 36, sourceFile: "back-covers/edition-1-back.png" },
+    ],
     coverPage: 1,
   },
   {
@@ -126,7 +125,10 @@ export const publications: Publication[] = [
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "natyasasthram.pdf",
-    pages: sequentialPdfPages(41),
+    pages: [
+      ...sequentialPdfPages(41),
+      { pageNumber: 42, sourceFile: "back-covers/natyasasthram-back.png" },
+    ],
     coverPage: 1,
   },
   {
@@ -139,7 +141,11 @@ export const publications: Publication[] = [
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "thalam.pdf",
-    pages: sequentialPdfPages(20),
+    pages: [
+      ...sequentialPdfPages(20),
+      { pageNumber: 21, sourceFile: "blank" },
+      { pageNumber: 22, sourceFile: "back-covers/thalam-back.png" },
+    ],
     coverPage: 1,
     // Old in-house.html cropped this cover's whitespace with a
     // { widthRatio: 0.62, heightRatio: 0.82 } canvas trick, hardcoded into
@@ -156,7 +162,10 @@ export const publications: Publication[] = [
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "make-up-text-book.pdf",
-    pages: sequentialPdfPages(59),
+    pages: [
+      ...sequentialPdfPages(59),
+      { pageNumber: 60, sourceFile: "back-covers/make-up-text-book-back.png" },
+    ],
     coverPage: 1,
   },
 ];

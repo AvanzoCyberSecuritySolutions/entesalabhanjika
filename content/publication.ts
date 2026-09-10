@@ -40,12 +40,13 @@ export type PublicationKind = "edition" | "book";
  * reliably numbered on disk (see content/sources/README expectations), so
  * the manifest is what fixes reading order. For a pdf Publication the
  * source file already has an intrinsic page order, so `sourceFile` is
- * omitted and `pageNumber` alone addresses the page within that PDF.
+ * omitted and `pageNumber` addresses the page within that PDF; if specified,
+ * `sourceFile` overrides the PDF page with an external image or "blank".
  */
 export interface PageManifestEntry {
   /** 1-based position within the Publication. */
   pageNumber: number;
-  /** Image-scans Publications only: filename under content/sources/<slug>/. */
+  /** Filename or relative path under content/sources/ (or content/sources/<slug>/), or "blank". */
   sourceFile?: string;
 }
 

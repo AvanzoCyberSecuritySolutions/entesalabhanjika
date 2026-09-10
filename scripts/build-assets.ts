@@ -246,6 +246,69 @@ async function processRasterizedPage(
   return { pageNumber, intrinsicWidth, intrinsicHeight, widths, hasThumbnail };
 }
 
+async function processBlankPage(
+  slug: string,
+  pageNumber: number,
+  intrinsicWidth: number,
+  intrinsicHeight: number,
+  prev: DerivedPageMetadata | undefined
+): Promise<DerivedPageMetadata> {
+  const widths = widthsFitting(intrinsicWidth);
+  let allExist = prev !== undefined;
+  if (allExist) {
+    for (const w of prev!.widths) {
+      if (!(await exists(absDerived(derivedPagePath(slug, pageNumber, w))))) {
+        allExist = false;
+        break;
+      }
+    }
+    if (prev!.hasThumbnail && !(await exists(absDerived(derivedThumbnailPath(slug, pageNumber))))) {
+      allExist = false;
+    }
+  }
+
+  if (allExist) {
+    for (const w of prev!.widths) await reuseExisting(derivedPagePath(slug, pageNumber, w));
+    if (prev!.hasThumbnail) await reuseExisting(derivedThumbnailPath(slug, pageNumber));
+    return prev!;
+  }
+
+  for (const w of widths) {
+    const h = Math.round(w * (intrinsicHeight / intrinsicWidth));
+    const outRelPath = derivedPagePath(slug, pageNumber, w);
+    const buffer = await sharp({
+      create: {
+        width: w,
+        height: h,
+        channels: 4,
+        background: { r: 253, g: 250, b: 243, alpha: 1 },
+      },
+    })
+      .webp({ quality: 82, effort: WEBP_EFFORT })
+      .toBuffer();
+    await writeFile(absDerived(outRelPath), buffer);
+    recordOutput(outRelPath, buffer.length, true);
+  }
+
+  const thumbW = Math.min(THUMBNAIL_WIDTH, intrinsicWidth);
+  const thumbH = Math.round(thumbW * (intrinsicHeight / intrinsicWidth));
+  const thumbRelPath = derivedThumbnailPath(slug, pageNumber);
+  const thumbBuffer = await sharp({
+    create: {
+      width: thumbW,
+      height: thumbH,
+      channels: 4,
+      background: { r: 253, g: 250, b: 243, alpha: 1 },
+    },
+  })
+    .webp({ quality: 82, effort: WEBP_EFFORT })
+    .toBuffer();
+  await writeFile(absDerived(thumbRelPath), thumbBuffer);
+  recordOutput(thumbRelPath, thumbBuffer.length, true);
+
+  return { pageNumber, intrinsicWidth, intrinsicHeight, widths, hasThumbnail: true };
+}
+
 function cropRectFor(crop: CoverCrop, fullWidth: number, fullHeight: number): { left: number; top: number; width: number; height: number } {
   return {
     left: 0,
@@ -317,11 +380,13 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
           `[build-assets] Publication "${pub.slug}" page ${entry.pageNumber} is image-scans but has no sourceFile.`
         );
       }
-      const sourceAbsPath = join(sourcesDir, pub.sourceRef, sourceFile);
+      const sourceAbsPath = resolve(
+        sourcesDir,
+        sourceFile.startsWith("back-covers/") ? sourceFile : join(pub.sourceRef, sourceFile)
+      );
       if (!(await exists(sourceAbsPath))) {
         throw new Error(
-          `[build-assets] Publication "${pub.slug}" page ${entry.pageNumber}: missing source file ` +
-            `content/sources/${pub.sourceRef}/${sourceFile}`
+          `[build-assets] Publication "${pub.slug}" page ${entry.pageNumber}: missing source file ${sourceAbsPath}`
         );
       }
       pageMeta.push(await processImageScanPage(pub.slug, entry.pageNumber, sourceAbsPath, prevByPage.get(entry.pageNumber)));
@@ -331,7 +396,11 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
     if (!coverEntry?.sourceFile) {
       throw new Error(`[build-assets] Publication "${pub.slug}": coverPage ${pub.coverPage} not found among its pages.`);
     }
-    await processCover(pub.slug, join(sourcesDir, pub.sourceRef, coverEntry.sourceFile), pub.coverCrop);
+    const coverAbsPath = resolve(
+      sourcesDir,
+      coverEntry.sourceFile.startsWith("back-covers/") ? coverEntry.sourceFile : join(pub.sourceRef, coverEntry.sourceFile)
+    );
+    await processCover(pub.slug, coverAbsPath, pub.coverCrop);
   } else {
     const pdfAbsPath = join(sourcesDir, pub.sourceRef);
     if (!(await exists(pdfAbsPath))) {
@@ -339,8 +408,11 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
     }
     const pdfMs = await mtimeMs(pdfAbsPath);
 
+    const pdfEntries = pub.pages.filter((e) => !e.sourceFile);
+    const nonPdfEntries = pub.pages.filter((e) => !!e.sourceFile);
+
     const dirtyPages: number[] = [];
-    for (const entry of pub.pages) {
+    for (const entry of pdfEntries) {
       if (await previousEntryIsFresh(pub.slug, prevByPage.get(entry.pageNumber), pdfMs)) {
         const prev = prevByPage.get(entry.pageNumber)!;
         for (const w of prev.widths) await reuseExisting(derivedPagePath(pub.slug, prev.pageNumber, w));
@@ -353,9 +425,9 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
 
     if (dirtyPages.length > 0) {
       const rasterFiles = await rasterizePdf(pdfAbsPath);
-      if (rasterFiles.length !== pub.pages.length) {
+      if (rasterFiles.length !== pdfEntries.length) {
         console.warn(
-          `[build-assets] Publication "${pub.slug}": pdftoppm produced ${rasterFiles.length} page(s), manifest expects ${pub.pages.length}.`
+          `[build-assets] Publication "${pub.slug}": pdftoppm produced ${rasterFiles.length} page(s), manifest expects ${pdfEntries.length} PDF pages.`
         );
       }
       for (const pageNumber of dirtyPages) {
@@ -376,7 +448,7 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
 
       await cleanupTempDir(rasterFiles);
     } else {
-      // Every page was fresh; the cover must still be checked/produced,
+      // Every PDF page was fresh; the cover must still be checked/produced,
       // but we have no fresh raster to source it from. If it's missing we
       // need to rasterize just the cover page.
       const coverAnyMissing = await (async () => {
@@ -397,6 +469,39 @@ async function processReadablePublication(pub: ReadablePublication): Promise<voi
           const rel = derivedCoverPath(pub.slug, w);
           if (await exists(absDerived(rel))) await reuseExisting(rel);
         }
+      }
+    }
+
+    // Process non-PDF entries (blank or external images like back covers)
+    for (const entry of nonPdfEntries) {
+      if (entry.sourceFile === "blank") {
+        const refMeta = pageMeta[0] ?? prevByPage.get(1);
+        const intrinsicWidth = refMeta?.intrinsicWidth ?? 2584;
+        const intrinsicHeight = refMeta?.intrinsicHeight ?? 3653;
+        pageMeta.push(
+          await processBlankPage(
+            pub.slug,
+            entry.pageNumber,
+            intrinsicWidth,
+            intrinsicHeight,
+            prevByPage.get(entry.pageNumber)
+          )
+        );
+      } else {
+        const sourceAbsPath = resolve(sourcesDir, entry.sourceFile!);
+        if (!(await exists(sourceAbsPath))) {
+          throw new Error(
+            `[build-assets] Publication "${pub.slug}" page ${entry.pageNumber}: missing source file ${sourceAbsPath}`
+          );
+        }
+        pageMeta.push(
+          await processImageScanPage(
+            pub.slug,
+            entry.pageNumber,
+            sourceAbsPath,
+            prevByPage.get(entry.pageNumber)
+          )
+        );
       }
     }
 
