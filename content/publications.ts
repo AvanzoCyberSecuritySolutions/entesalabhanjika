@@ -37,7 +37,7 @@ import { derivedCoverCandidates } from "./derived-assets";
  *   edition-1                2367  (content/sources/edition-1/page-0001.jpg)
  *   edition-2..5              1414  (content/sources/placeholders/*-cover.jpg)
  *   natyasasthram, make-up-text-book  2584  (PDF page 1 rasterized @ 150dpi)
- *   thalam                    1602  (2584 * coverCrop.widthRatio 0.62, rounded)
+ *   thalam                    1757  (PDF page 1 rasterized @ 150dpi)
  */
 function coverForSlug(slug: string, effectiveWidth: number): PublicationCover {
   return { candidates: derivedCoverCandidates(slug, effectiveWidth) };
@@ -136,8 +136,8 @@ export const publications: Publication[] = [
     title: "Thalam",
     kind: "book",
     collection: "in-house-books",
-    cover: coverForSlug("thalam", 1602),
-    coverEffectiveWidth: 1602,
+    cover: coverForSlug("thalam", 1757),
+    coverEffectiveWidth: 1757,
     placeholder: false,
     pageSourceKind: "pdf",
     sourceRef: "thalam.pdf",
@@ -147,10 +147,6 @@ export const publications: Publication[] = [
       { pageNumber: 22, sourceFile: "back-covers/thalam-back.png" },
     ],
     coverPage: 1,
-    // Old in-house.html cropped this cover's whitespace with a
-    // { widthRatio: 0.62, heightRatio: 0.82 } canvas trick, hardcoded into
-    // the render call. Same numbers, now manifest metadata instead.
-    coverCrop: { widthRatio: 0.62, heightRatio: 0.82 },
   },
   {
     slug: "make-up-text-book",
