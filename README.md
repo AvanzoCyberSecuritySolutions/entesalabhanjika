@@ -72,6 +72,7 @@ Vite build.
 
 Multi-stage `Dockerfile`: a Node build stage (with poppler-utils) runs the
 asset pipeline and `vite build`; an nginx stage (`nginx.conf`) serves
-`dist/` with long-lived immutable caching on hashed/derived assets and
-`no-cache` on HTML so deploys are picked up immediately. Coolify builds
+`dist/` with long-lived immutable caching on hashed assets (`/assets/`),
+and `no-cache` on unhashed derived assets (`/derived/`) and HTML so deploys
+are picked up immediately. Coolify builds
 this Dockerfile directly — no Coolify settings are touched by this repo.
