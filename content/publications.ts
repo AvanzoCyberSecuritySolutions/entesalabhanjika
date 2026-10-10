@@ -164,4 +164,19 @@ export const publications: Publication[] = [
     ],
     coverPage: 1,
   },
+  {
+    slug: "poojarini",
+    title: "Poojarini",
+    kind: "book",
+    collection: "in-house-books",
+    cover: coverForSlug("poojarini", 2584),
+    coverEffectiveWidth: 2584,
+    placeholder: false,
+    pageSourceKind: "pdf",
+    sourceRef: "poojarini.pdf",
+    pages: [
+      ...sequentialPdfPages(28)
+    ],
+    coverPage: 1,
+  },
 ];
