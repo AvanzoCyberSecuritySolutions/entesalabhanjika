@@ -155,11 +155,29 @@ async function reuseExisting(outRelPath: string): Promise<void> {
   recordOutput(outRelPath, bytes, false);
 }
 
-/** Renders every page of a PDF to JPEG in a fresh temp directory via poppler's pdftoppm, returns paths sorted by page number ascending. */
+/** Renders every page of a PDF to JPEG in a fresh temp directory via poppler's pdftoppm (or pymupdf fallback), returns paths sorted by page number ascending. */
 async function rasterizePdf(pdfAbsPath: string): Promise<string[]> {
   const dir = await mkdtemp(join(tmpdir(), "build-assets-pdf-"));
   const prefix = join(dir, "page");
-  await execFileAsync("pdftoppm", ["-jpeg", "-r", String(PDF_RASTER_DPI), pdfAbsPath, prefix]);
+  try {
+    await execFileAsync("pdftoppm", ["-jpeg", "-r", String(PDF_RASTER_DPI), pdfAbsPath, prefix]);
+  } catch (err: unknown) {
+    const error = err as { code?: string };
+    if (error?.code === "ENOENT") {
+      const pyScript = [
+        "import pymupdf, sys",
+        "doc = pymupdf.open(sys.argv[1])",
+        "dpi = int(sys.argv[2])",
+        "prefix = sys.argv[3]",
+        "for i, page in enumerate(doc):",
+        "    pix = page.get_pixmap(dpi=dpi)",
+        "    pix.save(f'{prefix}-{i+1}.jpg')",
+      ].join("\n");
+      await execFileAsync("python", ["-c", pyScript, pdfAbsPath, String(PDF_RASTER_DPI), prefix]);
+    } else {
+      throw err;
+    }
+  }
   const files = await readdir(dir);
   const numbered = files
     .map((f) => {

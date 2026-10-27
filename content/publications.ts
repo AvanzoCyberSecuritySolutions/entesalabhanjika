@@ -179,4 +179,19 @@ export const publications: Publication[] = [
     ],
     coverPage: 1,
   },
+  {
+    slug: "gollakalapam",
+    title: "Gollakalapam",
+    kind: "book",
+    collection: "in-house-books",
+    cover: coverForSlug("gollakalapam", 1241),
+    coverEffectiveWidth: 1241,
+    placeholder: false,
+    pageSourceKind: "pdf",
+    sourceRef: "gollakalapam.pdf",
+    pages: [
+      ...sequentialPdfPages(32),
+    ],
+    coverPage: 1,
+  },
 ];
